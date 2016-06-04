@@ -17,7 +17,8 @@ private:
 public:
     static std::unique_ptr<Slate> getInstance();
     ~Slate();
-    void run();
+    void XEventLoop();
+    void ClientLoop();
 };
 
 

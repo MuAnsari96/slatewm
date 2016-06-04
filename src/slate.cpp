@@ -1,5 +1,6 @@
 #include <iostream>
 #include "slate.h"
+#include "client_handler.h"
 
 #define ALT 64
 #define CTL 37
@@ -16,8 +17,8 @@ Slate::Slate() :
     display = display_;
     root = DefaultRootWindow(display_);
 
-    //toclient.bind("ipc:///tmp/feeds/0");
-    //fromclient.bind("ipc:///tmp/feeds/1");
+    toclient.bind("ipc:///tmp/slateevents");
+    fromclient.bind("ipc:///tmp/slateclient");
 }
 
 Slate::~Slate() {
@@ -28,7 +29,7 @@ std::unique_ptr<Slate> Slate::getInstance() {
     return std::unique_ptr<Slate> (new Slate);
 }
 
-void Slate::run() {
+void Slate::XEventLoop() {
     XSelectInput(display, root, KeyReleaseMask | KeyPressMask | SubstructureNotifyMask);
     // ALT, CTL, MOD
     bool mods[3] = {false, false, false};
@@ -36,8 +37,11 @@ void Slate::run() {
         XEvent e;
         XNextEvent(display, &e);
 
+        zmq::message_t msg(5);
+        memcpy(msg.data(), "PRESS!", 6);
         switch (e.type) {
             case KeyPress:
+                toclient.send(msg, ZMQ_NOBLOCK);
                 if (e.xkey.keycode == ALT) {
                     mods[0] = true;
                 }
@@ -69,4 +73,8 @@ void Slate::run() {
                 break;
         }
     }
+}
+
+void Slate::ClientLoop() {
+    ClientHandler::Run();
 }

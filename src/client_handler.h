@@ -2,8 +2,11 @@
 #define SLATEWM_EVENT_HANDLER_H
 
 
-namespace XEventHandler {
+namespace ClientHandler {
     // Add handlers
+    void Run() {
+        return;
+    }
 };
 
 
