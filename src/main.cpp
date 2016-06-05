@@ -1,15 +1,20 @@
 #include <iostream>
+#include <thread>
 #include "slate.h"
 
 using namespace std;
 
 int main() {
-    std::unique_ptr<Slate> wm = Slate::getInstance();
+    std::shared_ptr<Slate> wm = Slate::getInstance();
     if (!wm) {
         std::cout << "Failed to initialize slate" << std::endl;
         return -1;
     }
 
-    wm->XEventLoop();
+    std::thread T_Event(Slate::XEventLoopWrapper);
+    std::thread T_Client(Slate::ClientLoopWrapper);
+    T_Event.join();
+    T_Client.join();
     return 0;
 }
+

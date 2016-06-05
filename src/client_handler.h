@@ -2,11 +2,10 @@
 #define SLATEWM_EVENT_HANDLER_H
 
 
+#include "slate.h"
+
 namespace ClientHandler {
-    // Add handlers
-    void Run() {
-        return;
-    }
+    void Run(Slate* wm);
 };
 
 
