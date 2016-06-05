@@ -11,14 +11,20 @@ private:
     Window root;
     zmq::context_t ctx;
     zmq::socket_t toclient;
-    zmq::socket_t fromclient;
-    Slate();
+    static std::shared_ptr<Slate> instance;
 
-public:
-    static std::unique_ptr<Slate> getInstance();
-    ~Slate();
+    Slate();
     void XEventLoop();
     void ClientLoop();
+
+public:
+    zmq::socket_t fromclient;
+
+    ~Slate();
+    static std::shared_ptr<Slate> getInstance();
+    static void XEventLoopWrapper();
+    static void ClientLoopWrapper();
+
 };
 
 

@@ -6,6 +6,8 @@
 #define CTL 37
 #define MOD 133
 
+std::shared_ptr<Slate> Slate::instance = std::shared_ptr<Slate>();
+
 Slate::Slate() :
     ctx(1), toclient(ctx, ZMQ_PUSH), fromclient(ctx, ZMQ_PULL) {
     Display* display_ = XOpenDisplay(nullptr);
@@ -25,8 +27,10 @@ Slate::~Slate() {
     XCloseDisplay(display);
 }
 
-std::unique_ptr<Slate> Slate::getInstance() {
-    return std::unique_ptr<Slate> (new Slate);
+std::shared_ptr<Slate> Slate::getInstance() {
+    if (!instance)
+        instance = std::shared_ptr<Slate>(new Slate);
+    return instance;
 }
 
 void Slate::XEventLoop() {
@@ -76,5 +80,13 @@ void Slate::XEventLoop() {
 }
 
 void Slate::ClientLoop() {
-    ClientHandler::Run();
+    ClientHandler::Run(this);
+}
+
+void Slate::XEventLoopWrapper() {
+    getInstance()->XEventLoop();
+}
+
+void Slate::ClientLoopWrapper() {
+    getInstance()->ClientLoop();
 }
