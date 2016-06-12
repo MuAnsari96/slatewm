@@ -9,14 +9,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpthread")
 
 # Find/Include additional libs
 find_package(X11 REQUIRED)
-include_directories (${X11_INCLUDE_DIR})
+include_directories (${X11_INCLUDE_DIR}, lib)
 
 find_library(ZMQ_LIB NAMES zmq)
 find_path ( ZMQ_INCLUDE_DIR zmq.h )
 include_directories (${ZMQ_INCLUDE_DIR})
 
 # Source files
-set(SOURCE_FILES src/main.cpp src/slate.cpp src/slate.h src/client_handler.h src/client_handler.cpp)
+set(SOURCE_FILES src/main.cpp src/slate.cpp src/slate.h src/client_handler.h src/client_handler.cpp lib/json.h src/message.cpp src/message.h)
 
 # Create executable
 add_executable(slatewm ${SOURCE_FILES})

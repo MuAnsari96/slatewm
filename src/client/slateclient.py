@@ -1,4 +1,6 @@
 import zmq
+import message
+import rc as userconf
 
 def main():
     cxt = zmq.Context()
@@ -8,8 +10,9 @@ def main():
 
 def event_loop(fromwm):
     while True:
-        msg = fromwm.recv_string();
+        msg = fromwm.recv_json();
         print(msg)
+        message.talk()
 
 
 if __name__ == "__main__":

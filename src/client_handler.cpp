@@ -1,5 +1,6 @@
 #include <iostream>
 #include "client_handler.h"
+#include "message.h"
 
 void ClientHandler::Run(Slate* wm) {
     zmq::message_t reply;

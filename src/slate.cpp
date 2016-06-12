@@ -1,10 +1,13 @@
 #include <iostream>
+#include <X11/Xlib.h>
 #include "slate.h"
 #include "client_handler.h"
+#include "message.h"
 
 #define ALT 64
 #define CTL 37
-#define MOD 133
+#define META 133
+#define SHIFT 50
 
 std::shared_ptr<Slate> Slate::instance = std::shared_ptr<Slate>();
 
@@ -35,47 +38,51 @@ std::shared_ptr<Slate> Slate::getInstance() {
 
 void Slate::XEventLoop() {
     XSelectInput(display, root, KeyReleaseMask | KeyPressMask | SubstructureNotifyMask);
-    // ALT, CTL, MOD
-    bool mods[3] = {false, false, false};
     while (true) {
         XEvent e;
         XNextEvent(display, &e);
 
-        zmq::message_t msg(5);
-        memcpy(msg.data(), "PRESS!", 6);
+        json jmsg;
+        unsigned long xkeysym;
         switch (e.type) {
             case KeyPress:
-                toclient.send(msg, ZMQ_NOBLOCK);
-                if (e.xkey.keycode == ALT) {
-                    mods[0] = true;
-                }
-                if (e.xkey.keycode == CTL) {
-                    mods[1] = true;
-                }
-                if (e.xkey.keycode == MOD) {
-                    mods[2] = true;
-                }
+                state.alt = e.xkey.keycode == ALT ? true: state.alt;
+                state.ctl= e.xkey.keycode == CTL ? true: state.ctl;
+                state.meta = e.xkey.keycode == META ? true: state.meta;
+                state.shift = e.xkey.keycode == SHIFT ? true: state.shift;
+
+                xkeysym = XkbKeycodeToKeysym(display, e.xkey.keycode, 0, 0);
+                state.keymask.insert(xkeysym);
+
+                Message::PopulateMessage(&jmsg, state);
+                jmsg["Event"] = "KeyPress";
                 break;
             case KeyRelease:
-                if (e.xkey.keycode == ALT) {
-                    mods[0] = true;
-                }
-                if (e.xkey.keycode == CTL) {
-                    mods[1] = true;
-                }
-                if (e.xkey.keycode == MOD) {
-                    mods[2] = true;
-                }
+                state.alt = e.xkey.keycode == ALT ? false: state.alt;
+                state.ctl= e.xkey.keycode == CTL ? false: state.ctl;
+                state.meta = e.xkey.keycode == META ? false: state.meta;
+                state.shift = e.xkey.keycode == SHIFT ? false: state.shift;
+
+                xkeysym = XkbKeycodeToKeysym(display, e.xkey.keycode, 0, 0);
+                state.keymask.erase(xkeysym);
+
+                Message::PopulateMessage(&jmsg, state);
+                jmsg["Event"] = "KeyRelease";
                 break;
             case CreateNotify:
                 XSetWindowAttributes attr;
                 attr.do_not_propagate_mask = 0;
                 attr.event_mask = KeyReleaseMask | KeyPressMask | SubstructureNotifyMask;
                 XChangeWindowAttributes(display, e.xcreatewindow.window, CWDontPropagate | CWEventMask, &attr);
+                Message::PopulateMessage(&jmsg, state);
                 break;
             default:
                 break;
         }
+        std::string jmsg_str = jmsg.dump();
+        zmq::message_t msg(jmsg_str.size());
+        memcpy(msg.data(), jmsg_str.c_str(), jmsg_str.size());
+        toclient.send(msg, ZMQ_NOBLOCK);
     }
 }
 
