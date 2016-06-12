@@ -1,6 +1,6 @@
 import zmq
-import message
-import rc as userconf
+from events import *
+from rc import client
 
 def main():
     cxt = zmq.Context()
@@ -11,9 +11,12 @@ def main():
 def event_loop(fromwm):
     while True:
         msg = fromwm.recv_json();
-        print(msg)
-        message.talk()
-
+        event = msg["Event"]
+        if (event == "KeyPress"):
+            keys = msg["Keys"]
+            keymask = "".join(list(map(chr, keys["Keymask"])))
+            press = KeyPress(keys["Meta"], keys["Alt"], keys["Ctl"], keys["Shift"], keymask)
+            client.handle_keypress(press)
 
 if __name__ == "__main__":
     main()

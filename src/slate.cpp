@@ -52,9 +52,11 @@ void Slate::XEventLoop() {
                 state.shift = e.xkey.keycode == SHIFT ? true: state.shift;
 
                 xkeysym = XkbKeycodeToKeysym(display, e.xkey.keycode, 0, 0);
-                state.keymask.insert(xkeysym);
+                if (xkeysym < 128)
+                    state.keymask.insert(xkeysym);
 
                 Message::PopulateMessage(&jmsg, state);
+                jmsg["Delta"] = xkeysym;
                 jmsg["Event"] = "KeyPress";
                 break;
             case KeyRelease:
