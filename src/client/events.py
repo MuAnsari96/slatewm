@@ -3,14 +3,19 @@ class KeyPress:
                  alt=False,
                  ctl=False,
                  shift=False,
+                 space=False,
+                 enter=False,
                  mask=""):
-        self.mods = [mod, alt, ctl, shift]
+        self.mods = [mod, alt, ctl, shift, space, enter]
         self.mask = list(filter(str.isalnum, set(sorted(mask.lower()))))
 
     def __repr__(self):
         rep = "Mod + "*self.mods[0] + "Alt + "*self.mods[1] + \
-               "Ctl + "*self.mods[2] + "Shift + "*self.mods[3] + \
-               " + ".join(self.mask)
+              "Ctl + "*self.mods[2] + "Shift + "*self.mods[3] + \
+              "Space + "*self.mods[4] + "Enter + "*self.mods[5] + \
+              " + ".join(self.mask)
+        if len(rep) < 1:
+            return ""
         if rep[-1] == ' ':
             return rep[:-2]
         return rep

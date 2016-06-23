@@ -12,17 +12,18 @@ struct slate_state_t{
     bool shift = false;
     bool ctl = false;
     bool alt = false;
+    bool space = false;
+    bool enter = false;
     std::set<unsigned long> keymask;
     int workspace = 0;
+    unsigned long focused_client=-1;
 };
 
 class Slate {
 private:
-    Display* display;
     Window root;
     zmq::context_t ctx;
     zmq::socket_t toclient;
-    slate_state_t state;
     static std::shared_ptr<Slate> instance;
 
     Slate();
@@ -32,6 +33,8 @@ private:
 
 public:
     zmq::socket_t fromclient;
+    slate_state_t state;
+    Display* display;
 
     ~Slate();
     static std::shared_ptr<Slate> getInstance();

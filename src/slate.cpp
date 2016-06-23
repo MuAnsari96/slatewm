@@ -8,6 +8,8 @@
 #define CTL 37
 #define META 133
 #define SHIFT 50
+#define SPACE 65
+#define ENTER 36
 
 std::shared_ptr<Slate> Slate::instance = std::shared_ptr<Slate>();
 
@@ -43,6 +45,7 @@ void Slate::XEventLoop() {
         XNextEvent(display, &e);
 
         json jmsg;
+        Message::PopulateMessage(&jmsg, state, e);
         unsigned long xkeysym;
         switch (e.type) {
             case KeyPress:
@@ -50,12 +53,15 @@ void Slate::XEventLoop() {
                 state.ctl= e.xkey.keycode == CTL ? true: state.ctl;
                 state.meta = e.xkey.keycode == META ? true: state.meta;
                 state.shift = e.xkey.keycode == SHIFT ? true: state.shift;
+                state.space = e.xkey.keycode == SPACE ? true: state.space;
+                state.enter = e.xkey.keycode == ENTER ? true: state.enter;
 
                 xkeysym = XkbKeycodeToKeysym(display, e.xkey.keycode, 0, 0);
                 if (xkeysym < 128)
                     state.keymask.insert(xkeysym);
+                state.focused_client = e.xkey.window;
 
-                Message::PopulateMessage(&jmsg, state);
+                Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Delta"] = xkeysym;
                 jmsg["Event"] = "KeyPress";
                 break;
@@ -64,11 +70,13 @@ void Slate::XEventLoop() {
                 state.ctl= e.xkey.keycode == CTL ? false: state.ctl;
                 state.meta = e.xkey.keycode == META ? false: state.meta;
                 state.shift = e.xkey.keycode == SHIFT ? false: state.shift;
+                state.space = e.xkey.keycode == SPACE ? false: state.space;
+                state.enter = e.xkey.keycode == ENTER ? false: state.enter;
 
                 xkeysym = XkbKeycodeToKeysym(display, e.xkey.keycode, 0, 0);
                 state.keymask.erase(xkeysym);
 
-                Message::PopulateMessage(&jmsg, state);
+                Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Event"] = "KeyRelease";
                 break;
             case CreateNotify:
@@ -76,7 +84,7 @@ void Slate::XEventLoop() {
                 attr.do_not_propagate_mask = 0;
                 attr.event_mask = KeyReleaseMask | KeyPressMask | SubstructureNotifyMask;
                 XChangeWindowAttributes(display, e.xcreatewindow.window, CWDontPropagate | CWEventMask, &attr);
-                Message::PopulateMessage(&jmsg, state);
+                Message::PopulateMessage(&jmsg, state, e);
                 break;
             default:
                 break;
