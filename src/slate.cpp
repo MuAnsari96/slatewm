@@ -47,6 +47,7 @@ void Slate::XEventLoop() {
         json jmsg;
         Message::PopulateMessage(&jmsg, state, e);
         unsigned long xkeysym;
+        Window root;
         switch (e.type) {
             case KeyPress:
                 state.alt = e.xkey.keycode == ALT ? true: state.alt;

@@ -16,7 +16,7 @@ find_path ( ZMQ_INCLUDE_DIR zmq.h )
 include_directories (${ZMQ_INCLUDE_DIR})
 
 # Source files
-set(SOURCE_FILES src/main.cpp src/slate.cpp src/slate.h src/client_handler.h src/client_handler.cpp lib/json.h src/message.cpp src/message.h)
+set(SOURCE_FILES src/main.cpp src/slate.cpp src/slate.h src/client_handler.h src/client_handler.cpp lib/json.h src/message.cpp src/message.h src/layout/tile.cpp src/layout/tile.h src/layout/workspace.cpp src/layout/workspace.h src/layout/client.cpp src/layout/client.h)
 
 # Create executable
 add_executable(slatewm ${SOURCE_FILES})

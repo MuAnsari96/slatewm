@@ -1,6 +1,7 @@
-import zmq
 from events import *
 from rc import client
+
+import zmq
 
 def main():
     cxt = zmq.Context()
