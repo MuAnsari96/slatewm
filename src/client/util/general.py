@@ -2,7 +2,6 @@ import subprocess
 
 
 def SpawnProcess(*args):
-    print("hello")
     subprocess.Popen(args)
 
 

@@ -12,12 +12,12 @@ void ClientHandler::Run(Slate* wm) {
         json jmsg = json::parse(msg);
         int event = jmsg["Event"];
 
+        std::cout << event << std::endl;
         switch(event) {
             case Kill_FOCUSED_CLIENT:
                 XKillClient(wm->display, wm->state.focused_client);
                 break;
             case HIDE_FOCUSED_CLIENT:
-            std::cout << Client::clientID(wm->display, wm->state.focused_client) << std::endl;
                 XUnmapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
             case UNHIDE_FOCUSED_CLIENT:

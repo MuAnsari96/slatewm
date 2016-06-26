@@ -3,6 +3,7 @@
 #include "slate.h"
 #include "client_handler.h"
 #include "message.h"
+#include "util.h"
 
 #define ALT 64
 #define CTL 37
@@ -42,12 +43,11 @@ void Slate::XEventLoop() {
     XSelectInput(display, root, KeyReleaseMask | KeyPressMask | SubstructureNotifyMask);
     while (true) {
         XEvent e;
-        XNextEvent(display, &e);
+        InterruptibleXNextEvent(display, &e);
 
         json jmsg;
         Message::PopulateMessage(&jmsg, state, e);
         unsigned long xkeysym;
-        Window root;
         switch (e.type) {
             case KeyPress:
                 state.alt = e.xkey.keycode == ALT ? true: state.alt;

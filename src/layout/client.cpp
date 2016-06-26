@@ -1,3 +1,4 @@
+#include <iostream>
 #include "client.h"
 
 Client::Client(int Xid) {
@@ -7,11 +8,11 @@ Client::Client(int Xid) {
 Window Client::clientID(Display *d, Window Xid) {
     Window root = XDefaultRootWindow(d);
     Window parent = Xid;
-    Window **children;
-    unsigned int *numchildren;
+    Window *children;
+    unsigned int numchildren;
     while (root != parent) {
         Xid = parent;
-        XQueryTree(d, Xid, &root, &parent, children, numchildren);
+        XQueryTree(d, Xid, &root, &parent, &children, &numchildren);
         if (numchildren != 0) {
             XFree(children);
         }
