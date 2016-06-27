@@ -43,6 +43,7 @@ std::shared_ptr<Slate> Slate::getInstance() {
 
 void Slate::XEventLoop() {
     XSelectInput(display, root, KeyReleaseMask | KeyPressMask | SubstructureNotifyMask);
+    std::unordered_map<Window, std::string> clientLUT;
     while (true) {
         XEvent e;
         InterruptibleXNextEvent(display, &e);
@@ -88,7 +89,12 @@ void Slate::XEventLoop() {
                 attr.event_mask = KeyReleaseMask | KeyPressMask | SubstructureNotifyMask;
                 XChangeWindowAttributes(display, e.xcreatewindow.window, CWDontPropagate | CWEventMask, &attr);
                 state.workspaces[state.workspaceID]->addClient(display, e.xcreatewindow.window);
+                clientLUT[e.xcreatewindow.window] = state.workspaceID;
                 Message::PopulateMessage(&jmsg, state, e);
+                break;
+            case DestroyNotify:
+                std::cout << "Yooo" << std::endl;
+                state.workspaces[clientLUT[e.xdestroywindow.window]]->clients.erase(e.xdestroywindow.window);
                 break;
             default:
                 break;
