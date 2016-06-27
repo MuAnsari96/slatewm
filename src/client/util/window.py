@@ -14,3 +14,7 @@ def HideFocusedClient():
 def UnhideFocusedClient():
     msg = {"Event": Events.UNHIDE_FOCUSED_CLIENT}
     towm.send_json(msg)
+
+def SwitchWorkspace(workspaceid):
+    msg = {"Event": Events.SWITCH_WORKSPACE, "Workspace": workspaceid}
+    towm.send_json(msg)

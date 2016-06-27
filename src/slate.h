@@ -4,8 +4,12 @@
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <memory>
-#include <set>
+#include <unordered_set>
+#include <unordered_map>
 #include "zmq.hpp"
+#include "layout/workspace.h"
+
+class Workspace;
 
 struct slate_state_t{
     bool meta = false;
@@ -14,8 +18,9 @@ struct slate_state_t{
     bool alt = false;
     bool space = false;
     bool enter = false;
-    std::set<unsigned long> keymask;
-    int workspace = 0;
+    std::unordered_set<unsigned long> keymask;
+    std::unordered_map<std::string, Workspace*> workspaces;
+    std::string workspaceID = "0";
     unsigned long focused_client=-1;
 };
 

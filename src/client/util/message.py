@@ -14,6 +14,7 @@ class Events:
     KILL_FOCUSED_CLIENT = 0
     HIDE_FOCUSED_CLIENT = 1
     UNHIDE_FOCUSED_CLIENT = 2
+    SWITCH_WORKSPACE = 3
 
 
 def sendmsg(msg):

@@ -19,3 +19,15 @@ client.register_keypress(
 client.register_keypress(
     KeyPress(alt=True, shift=True, mask='n'),
     callback=util.UnhideFocusedClient)
+
+client.register_keypress(
+    KeyPress(alt=True, mask='1'),
+    callback=lambda: util.SwitchWorkspace('0'))
+
+client.register_keypress(
+    KeyPress(alt=True, mask='2'),
+    callback=lambda: util.SwitchWorkspace('b'))
+
+client.register_keypress(
+    KeyPress(alt=True, mask='3'),
+    callback=lambda: util.SwitchWorkspace('c'))

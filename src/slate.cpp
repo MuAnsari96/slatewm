@@ -25,6 +25,8 @@ Slate::Slate() :
     display = display_;
     root = DefaultRootWindow(display_);
 
+    state.workspaces["0"] = new Workspace("0");
+
     toclient.bind("ipc:///tmp/slateevents");
     fromclient.bind("ipc:///tmp/slateclient");
 }
@@ -85,6 +87,7 @@ void Slate::XEventLoop() {
                 attr.do_not_propagate_mask = 0;
                 attr.event_mask = KeyReleaseMask | KeyPressMask | SubstructureNotifyMask;
                 XChangeWindowAttributes(display, e.xcreatewindow.window, CWDontPropagate | CWEventMask, &attr);
+                state.workspaces[state.workspaceID]->addClient(display, e.xcreatewindow.window);
                 Message::PopulateMessage(&jmsg, state, e);
                 break;
             default:

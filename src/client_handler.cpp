@@ -23,6 +23,9 @@ void ClientHandler::Run(Slate* wm) {
             case UNHIDE_FOCUSED_CLIENT:
                 XMapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
+            case SWITCH_WORKSPACE:
+                Workspace::switchTo(wm, jmsg["Workspace"]);
+                break;
             default:
                 break;
         }
