@@ -12,7 +12,6 @@ void ClientHandler::Run(Slate* wm) {
         json jmsg = json::parse(msg);
         int event = jmsg["Event"];
 
-        std::cout << event << std::endl;
         switch(event) {
             case Kill_FOCUSED_CLIENT:
                 XKillClient(wm->display, wm->state.focused_client);
@@ -24,6 +23,7 @@ void ClientHandler::Run(Slate* wm) {
                 XMapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
             case SWITCH_WORKSPACE:
+            std::cout << "Got to callback" << std::endl;
                 Workspace::switchTo(wm, jmsg["Workspace"]);
                 break;
             default:

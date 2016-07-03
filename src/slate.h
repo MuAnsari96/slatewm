@@ -26,7 +26,6 @@ struct slate_state_t{
 
 class Slate {
 private:
-    Window root;
     zmq::context_t ctx;
     zmq::socket_t toclient;
     static std::shared_ptr<Slate> instance;
@@ -40,6 +39,7 @@ public:
     zmq::socket_t fromclient;
     slate_state_t state;
     Display* display;
+    Window root;
 
     ~Slate();
     static std::shared_ptr<Slate> getInstance();

@@ -2,8 +2,6 @@
 #include <thread>
 #include "slate.h"
 
-using namespace std;
-
 int main() {
     std::shared_ptr<Slate> wm = Slate::getInstance();
     if (!wm) {

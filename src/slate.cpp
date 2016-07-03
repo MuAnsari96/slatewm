@@ -25,7 +25,8 @@ Slate::Slate() :
     display = display_;
     root = DefaultRootWindow(display_);
 
-    state.workspaces["0"] = new Workspace("0");
+    state.workspaces["0"] = new Workspace(this, "0");
+    state.focused_client = root;
 
     toclient.bind("ipc:///tmp/slateevents");
     fromclient.bind("ipc:///tmp/slateclient");
@@ -43,7 +44,6 @@ std::shared_ptr<Slate> Slate::getInstance() {
 
 void Slate::XEventLoop() {
     XSelectInput(display, root, KeyReleaseMask | KeyPressMask | SubstructureNotifyMask);
-    std::unordered_map<Window, std::string> clientLUT;
     while (true) {
         XEvent e;
         InterruptibleXNextEvent(display, &e);
@@ -64,6 +64,7 @@ void Slate::XEventLoop() {
                 if (xkeysym < 128)
                     state.keymask.insert(xkeysym);
                 state.focused_client = e.xkey.window;
+                state.workspaces[state.workspaceID]->focused_client = e.xkey.window;
 
                 Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Delta"] = xkeysym;
@@ -88,13 +89,12 @@ void Slate::XEventLoop() {
                 attr.do_not_propagate_mask = 0;
                 attr.event_mask = KeyReleaseMask | KeyPressMask | SubstructureNotifyMask;
                 XChangeWindowAttributes(display, e.xcreatewindow.window, CWDontPropagate | CWEventMask, &attr);
-                state.workspaces[state.workspaceID]->addClient(display, e.xcreatewindow.window);
-                clientLUT[e.xcreatewindow.window] = state.workspaceID;
+            std::cout << "Making client" << std::endl;
+                state.workspaces[state.workspaceID]->addClient(this, e.xcreatewindow.window);
                 Message::PopulateMessage(&jmsg, state, e);
                 break;
             case DestroyNotify:
-                std::cout << "Yooo" << std::endl;
-                state.workspaces[clientLUT[e.xdestroywindow.window]]->clients.erase(e.xdestroywindow.window);
+                state.workspaces[Workspace::clientLUT[e.xdestroywindow.window]]->removeClient(this, e.xdestroywindow.window);
                 break;
             default:
                 break;
