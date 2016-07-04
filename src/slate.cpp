@@ -52,13 +52,13 @@ void Slate::XEventLoop() {
         Message::PopulateMessage(&jmsg, state, e);
         unsigned long xkeysym;
         switch (e.type) {
-            case KeyPress:
-                state.alt = e.xkey.keycode == ALT ? true: state.alt;
-                state.ctl= e.xkey.keycode == CTL ? true: state.ctl;
-                state.meta = e.xkey.keycode == META ? true: state.meta;
-                state.shift = e.xkey.keycode == SHIFT ? true: state.shift;
-                state.space = e.xkey.keycode == SPACE ? true: state.space;
-                state.enter = e.xkey.keycode == ENTER ? true: state.enter;
+            case KeyPress: {
+                state.alt = e.xkey.keycode == ALT ? true : state.alt;
+                state.ctl = e.xkey.keycode == CTL ? true : state.ctl;
+                state.meta = e.xkey.keycode == META ? true : state.meta;
+                state.shift = e.xkey.keycode == SHIFT ? true : state.shift;
+                state.space = e.xkey.keycode == SPACE ? true : state.space;
+                state.enter = e.xkey.keycode == ENTER ? true : state.enter;
 
                 xkeysym = XkbKeycodeToKeysym(display, e.xkey.keycode, 0, 0);
                 if (xkeysym < 128)
@@ -70,13 +70,14 @@ void Slate::XEventLoop() {
                 jmsg["Delta"] = xkeysym;
                 jmsg["Event"] = "KeyPress";
                 break;
-            case KeyRelease:
-                state.alt = e.xkey.keycode == ALT ? false: state.alt;
-                state.ctl= e.xkey.keycode == CTL ? false: state.ctl;
-                state.meta = e.xkey.keycode == META ? false: state.meta;
-                state.shift = e.xkey.keycode == SHIFT ? false: state.shift;
-                state.space = e.xkey.keycode == SPACE ? false: state.space;
-                state.enter = e.xkey.keycode == ENTER ? false: state.enter;
+            }
+            case KeyRelease: {
+                state.alt = e.xkey.keycode == ALT ? false : state.alt;
+                state.ctl = e.xkey.keycode == CTL ? false : state.ctl;
+                state.meta = e.xkey.keycode == META ? false : state.meta;
+                state.shift = e.xkey.keycode == SHIFT ? false : state.shift;
+                state.space = e.xkey.keycode == SPACE ? false : state.space;
+                state.enter = e.xkey.keycode == ENTER ? false : state.enter;
 
                 xkeysym = XkbKeycodeToKeysym(display, e.xkey.keycode, 0, 0);
                 state.keymask.erase(xkeysym);
@@ -84,18 +85,26 @@ void Slate::XEventLoop() {
                 Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Event"] = "KeyRelease";
                 break;
-            case CreateNotify:
+            }
+            case CreateNotify: {
                 XSetWindowAttributes attr;
                 attr.do_not_propagate_mask = 0;
                 attr.event_mask = KeyReleaseMask | KeyPressMask | SubstructureNotifyMask;
                 XChangeWindowAttributes(display, e.xcreatewindow.window, CWDontPropagate | CWEventMask, &attr);
-            std::cout << "Making client" << std::endl;
-                state.workspaces[state.workspaceID]->addClient(this, e.xcreatewindow.window);
+                Workspace* w = state.workspaces[state.workspaceID];
+                if (w) {
+                    state.workspaces[state.workspaceID]->addClient(this, e.xcreatewindow.window);
+                }
                 Message::PopulateMessage(&jmsg, state, e);
                 break;
-            case DestroyNotify:
-                state.workspaces[Workspace::clientLUT[e.xdestroywindow.window]]->removeClient(this, e.xdestroywindow.window);
+            }
+            case DestroyNotify: {
+                Workspace *w = state.workspaces[Workspace::clientLUT[e.xdestroywindow.window]];
+                if (w) {
+                    w->removeClient(this, e.xdestroywindow.window);
+                }
                 break;
+            }
             default:
                 break;
         }

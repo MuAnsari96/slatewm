@@ -23,7 +23,6 @@ void ClientHandler::Run(Slate* wm) {
                 XMapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
             case SWITCH_WORKSPACE:
-            std::cout << "Got to callback" << std::endl;
                 Workspace::switchTo(wm, jmsg["Workspace"]);
                 break;
             default:

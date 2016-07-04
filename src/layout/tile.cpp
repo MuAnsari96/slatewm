@@ -3,16 +3,15 @@
 
 Tile::Tile() :
     xLimits{0, 0}, yLimits{0, 0}, parent{nullptr},
-    first{nullptr}, second{nullptr}, splitType{VERTICAL} { std::cout << "Making tile" << std::endl;}
+    first{nullptr}, second{nullptr}, splitType{VERTICAL} {}
 
 Tile::Tile(unsigned int xMax, unsigned int yMax) :
         xLimits{0, xMax}, yLimits{0, yMax}, parent{nullptr},
-        first{nullptr}, second{nullptr}, splitType{VERTICAL} { std::cout << "Making tile" << std::endl;}
+        first{nullptr}, second{nullptr}, splitType{VERTICAL} {}
 
 Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client) :
     xLimits{xLimits}, yLimits{yLimits}, parent{parent},
     client{client}, first{nullptr}, second{nullptr} {
-    std::cout << "Making tile" << std::endl;
     if (xLimits.second - xLimits.first >= yLimits.second - yLimits.first) {
         splitType = VERTICAL;
     }
@@ -34,7 +33,6 @@ Tile::~Tile() {
 
 Tile* Tile::assignClient(Slate* wm, Window client) {
     assert(first == nullptr && second == nullptr);
-    std::cout << "Hello!!!!" << std::endl;
     if (!this->client) {
         this->client = client;
         return this;
@@ -52,8 +50,7 @@ Tile* Tile::assignClient(Slate* wm, Window client) {
         second = new Tile({(xLimits.first + xLimits.second)/2, xLimits.second}, yLimits,
                           this, client);
     }
-    this->client = boost::none;
-    drawTile(wm);
+    this->client.reset();
     return second;
 }
 
@@ -108,3 +105,8 @@ void Tile::killUpdate(Slate *wm, Tile *tile) {
     delete tile;
     parent->drawTile(wm);
 }
+
+std::ostream& operator<< (std::ostream out, const Tile& tile) {
+    out << "Tile(x: " << tile.xLimits.first << ", " << tile.xLimits.second << " | y: " << tile.yLimits.first
+        << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
+};

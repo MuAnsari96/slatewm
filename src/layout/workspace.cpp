@@ -34,24 +34,24 @@ void Workspace::addClient(Slate* wm, Window w) {
     if (clients.count(top) > 0) {
         return;
     }
-    clients.insert(top);
+    clients.emplace(top);
     clientLUT[w] = name;
     Window topFocused = Client::clientID(wm->display, wm->state.focused_client);
     Tile* focusedTile = root;
     if (tileLUT.count(topFocused) > 0) {
         focusedTile = tileLUT[topFocused];
-        cout << "has!" << endl;
     }
     tileLUT[w] = focusedTile->assignClient(wm, w);
     if (focusedTile->first != nullptr) {
         std::cout << focusedTile->first->client << std::endl;
         tileLUT[focusedTile->first->client.get()] = focusedTile->first;
     }
+    root->drawTile(wm);
 }
 
 void Workspace::removeClient(Slate* wm, Window w) {
-    clients.erase(w);
     clientLUT.erase(w);
+    clients.size();
     Tile* target = tileLUT[w];
     Tile* parent = target->parent;
     delete target;
@@ -77,7 +77,7 @@ void Workspace::switchTo(Slate *wm, std::string targetName) {
 
 void Workspace::hideWorkspace(Slate *wm) {
     Workspace *curr = wm->state.workspaces[wm->state.workspaceID];
-    std::unordered_set<Window> clients = curr->clients;
+    std::unordered_set<unsigned int> clients = curr->clients;
     for (Window client: clients) {
         XUnmapWindow(wm->display, client);
     }
@@ -88,7 +88,7 @@ void Workspace::showWorkspace(Slate *wm, std::string targetName) {
         wm->state.workspaces[targetName] = new Workspace(wm, targetName);
     }
     Workspace *target = wm->state.workspaces[targetName];
-    std::unordered_set<Window> clients = target->clients;
+    std::unordered_set<unsigned int> clients = target->clients;
     for (Window client: clients) {
         XMapWindow(wm->display, client);
     }

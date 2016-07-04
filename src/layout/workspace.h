@@ -29,8 +29,8 @@ public:
 
 private:
     std::string name;
-    std::unordered_set<Window> clients;
     std::unordered_map<Window, Tile*> tileLUT;
+    std::unordered_set<unsigned int> clients;
 
 
     static void hideWorkspace(Slate* wm);

@@ -3,6 +3,7 @@
 
 #include <utility>
 #include "boost/optional.hpp"
+#include <boost/optional/optional_io.hpp>
 #include "../slate.h"
 #include <X11/Xlib.h>
 
@@ -30,6 +31,8 @@ public:
     void recalculateBoundaries();
     void deleteChild(Tile* child);
 
+    friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
+
     static void killUpdate(Slate* wm, Tile *tile);
 
 
@@ -40,7 +43,6 @@ public:
 
     boost::optional<Window> client;
 
-private:
     tuple xLimits;
     tuple yLimits;
 };
