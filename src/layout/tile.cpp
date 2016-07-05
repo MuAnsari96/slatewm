@@ -69,6 +69,7 @@ void Tile::drawTile(Slate* wm) {
 }
 
 void Tile::recalculateBoundaries() {
+    std::cout << "recalculating" << std::endl;
     if (!first || !second) {
         return;
     }
@@ -84,6 +85,22 @@ void Tile::recalculateBoundaries() {
         second->xLimits = {(xLimits.first + xLimits.second)/2, xLimits.second};
         second->yLimits = yLimits;
     }
+
+    if (first->xLimits.second - first->xLimits.first >= first->yLimits.second - first->yLimits.first) {
+        first->splitType = VERTICAL;
+    }
+    else {
+        first->splitType = HORIZONTAL;
+    }
+
+    if (second->xLimits.second - second->xLimits.first >= second->yLimits.second - second->yLimits.first) {
+        second->splitType = VERTICAL;
+    }
+    else {
+        second->splitType = HORIZONTAL;
+    }
+    first->recalculateBoundaries();
+    second->recalculateBoundaries();
 }
 
 void Tile::deleteChild(Tile *child) {
@@ -105,6 +122,7 @@ void Tile::deleteChild(Tile *child) {
         second = prop->second;
         first->parent = this;
         second->parent = this;
+        std::cout << *this << std::endl;
         recalculateBoundaries();
     }
 

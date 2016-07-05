@@ -65,6 +65,7 @@ void Slate::XEventLoop() {
                     state.keymask.insert(xkeysym);
                 state.focused_client = e.xkey.window;
                 state.workspaces[state.workspaceID]->focused_client = e.xkey.window;
+                state.workspaces[state.workspaceID]->root->drawTile(this);
 
                 Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Delta"] = xkeysym;
