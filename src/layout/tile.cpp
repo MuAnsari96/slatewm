@@ -119,7 +119,23 @@ void Tile::killUpdate(Slate *wm, Tile *tile) {
     parent->drawTile(wm);
 }
 
+void Tile::printHier(int level) {
+    if (level == 0) {
+        std::cout << "------------------------------------------" << std::endl;
+    }
+    for (int i = 0; i < level; i++) {
+        std::cout << "  ";
+    }
+    std::cout << *this << std::endl;
+    if (first && second) {
+        first->printHier(level+1);
+        second->printHier(level+1);
+    }
+}
+
 std::ostream& operator<< (std::ostream& out, const Tile& tile) {
     out << "Tile(x: " << tile.xLimits.first << ", " << tile.xLimits.second << " | y: " << tile.yLimits.first
         << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
-};
+}
+
+

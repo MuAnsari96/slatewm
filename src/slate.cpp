@@ -93,8 +93,8 @@ void Slate::XEventLoop() {
                 XChangeWindowAttributes(display, e.xcreatewindow.window, CWDontPropagate | CWEventMask, &attr);
                 Workspace* w = state.workspaces[state.workspaceID];
                 if (w) {
-                    state.workspaces[state.workspaceID]->addClient(this, e.xcreatewindow.window);
-                    state.workspaces[state.workspaceID]->root->drawTile(this);
+                    w->addClient(this, e.xcreatewindow.window);
+                    w->root->drawTile(this);
                 }
                 Message::PopulateMessage(&jmsg, state, e);
                 break;

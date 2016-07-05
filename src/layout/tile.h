@@ -31,6 +31,7 @@ public:
     void recalculateBoundaries();
     void deleteChild(Tile* child);
     void destroy();
+    void printHier(int level);
 
     friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
 

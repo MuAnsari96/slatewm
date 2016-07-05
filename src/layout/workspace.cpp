@@ -29,6 +29,7 @@ Workspace::~Workspace() {
     root->destroy();
 }
 using namespace std;
+
 void Workspace::addClient(Slate* wm, Window w) {
     Window top = Client::clientID(wm->display, w);
     if (clients.count(top) > 0) {
@@ -49,7 +50,7 @@ void Workspace::addClient(Slate* wm, Window w) {
 
 void Workspace::removeClient(Slate* wm, Window w) {
     clientLUT.erase(w);
-    clients.size();
+    clients.erase(w);
     Tile* target = tileLUT[w];
     Tile* parent = target->parent;
     target->destroy();
