@@ -26,7 +26,7 @@ Workspace::Workspace(Slate* wm, std::string name) {
 }
 
 Workspace::~Workspace() {
-    delete root;
+    root->destroy();
 }
 using namespace std;
 void Workspace::addClient(Slate* wm, Window w) {
@@ -52,14 +52,14 @@ void Workspace::removeClient(Slate* wm, Window w) {
     clients.size();
     Tile* target = tileLUT[w];
     Tile* parent = target->parent;
-    delete target;
+    target->destroy();
     tileLUT.erase(w);
     if (target == root) {
         XWindowAttributes attr;
         XGetWindowAttributes(wm->display, wm->root, &attr);
         root = new Tile(attr.width, attr.height);
     }
-    else if (parent != nullptr) {
+    else if (parent != nullptr && parent->client) {
         tileLUT[parent->client.get()] = parent;
     }
     root->drawTile(wm);

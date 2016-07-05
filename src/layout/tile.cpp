@@ -25,10 +25,13 @@ Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> c
         client{client}, first{nullptr}, second{nullptr}, splitType{splitType} {}
 
 Tile::~Tile() {
-    assert(client);
+}
+
+void Tile::destroy() {
     if (parent != nullptr) {
         parent->deleteChild(this);
     }
+    delete this;
 }
 
 Tile* Tile::assignClient(Slate* wm, Window client) {
@@ -66,6 +69,9 @@ void Tile::drawTile(Slate* wm) {
 }
 
 void Tile::recalculateBoundaries() {
+    if (!first || !second) {
+        return;
+    }
     if (splitType == HORIZONTAL) {
         first->xLimits = xLimits;
         first->yLimits = {yLimits.first, (yLimits.first + yLimits.second)/2};
@@ -78,8 +84,6 @@ void Tile::recalculateBoundaries() {
         second->xLimits = {(xLimits.first + xLimits.second)/2, xLimits.second};
         second->yLimits = yLimits;
     }
-    first->recalculateBoundaries();
-    second->recalculateBoundaries();
 }
 
 void Tile::deleteChild(Tile *child) {
@@ -91,18 +95,27 @@ void Tile::deleteChild(Tile *child) {
         prop = first;
     }
 
-    first = nullptr;
-    second = nullptr;
-    client = prop->client;
+    if (prop->client) {
+        first = nullptr;
+        second = nullptr;
+        client = prop->client;
+    }
+    else {
+        first = prop->first;
+        second = prop->second;
+        first->parent = this;
+        second->parent = this;
+        recalculateBoundaries();
+    }
 
     prop->parent = nullptr;
-    delete prop;
+    prop->destroy();
 }
 
 void Tile::killUpdate(Slate *wm, Tile *tile) {
     Tile* parent= tile->parent;
     XKillClient(wm->display, tile->client.get());
-    delete tile;
+    tile->destroy();
     parent->drawTile(wm);
 }
 

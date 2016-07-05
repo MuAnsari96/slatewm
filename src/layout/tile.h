@@ -30,6 +30,7 @@ public:
     void drawTile(Slate* wm);
     void recalculateBoundaries();
     void deleteChild(Tile* child);
+    void destroy();
 
     friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
 
