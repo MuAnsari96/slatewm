@@ -43,10 +43,8 @@ void Workspace::addClient(Slate* wm, Window w) {
     }
     tileLUT[w] = focusedTile->assignClient(wm, w);
     if (focusedTile->first != nullptr) {
-        std::cout << focusedTile->first->client << std::endl;
         tileLUT[focusedTile->first->client.get()] = focusedTile->first;
     }
-    root->drawTile(wm);
 }
 
 void Workspace::removeClient(Slate* wm, Window w) {
@@ -92,6 +90,6 @@ void Workspace::showWorkspace(Slate *wm, std::string targetName) {
     for (Window client: clients) {
         XMapWindow(wm->display, client);
     }
-    target->root->drawTile(wm);
+    //target->root->drawTile(wm);
     wm->state.workspaceID = targetName;
 }

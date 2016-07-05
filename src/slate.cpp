@@ -94,6 +94,7 @@ void Slate::XEventLoop() {
                 Workspace* w = state.workspaces[state.workspaceID];
                 if (w) {
                     state.workspaces[state.workspaceID]->addClient(this, e.xcreatewindow.window);
+                    state.workspaces[state.workspaceID]->root->drawTile(this);
                 }
                 Message::PopulateMessage(&jmsg, state, e);
                 break;

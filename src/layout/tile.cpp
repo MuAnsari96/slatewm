@@ -106,7 +106,7 @@ void Tile::killUpdate(Slate *wm, Tile *tile) {
     parent->drawTile(wm);
 }
 
-std::ostream& operator<< (std::ostream out, const Tile& tile) {
+std::ostream& operator<< (std::ostream& out, const Tile& tile) {
     out << "Tile(x: " << tile.xLimits.first << ", " << tile.xLimits.second << " | y: " << tile.yLimits.first
         << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
 };

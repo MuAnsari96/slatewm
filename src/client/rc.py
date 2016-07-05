@@ -10,7 +10,7 @@ client.register_keypress(
 
 client.register_keypress(
     KeyPress(alt=True, enter=True, mask=''),
-    callback=lambda: util.SpawnProcess("/usr/bin/xterm"))
+    callback=lambda: util.SpawnProcess("xterm"))
 
 client.register_keypress(
     KeyPress(alt=True, mask='n'),
