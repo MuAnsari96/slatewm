@@ -5,7 +5,8 @@
 #include "message.h"
 #include "layout/client.h"
 
-void ClientHandler::Run(Slate* wm) {
+void ClientHandler::Run() {
+    std::shared_ptr<Slate> wm = Slate::getInstance();
     zmq::message_t reply;
     while (true) {
         wm->fromclient.recv(&reply);
@@ -25,7 +26,7 @@ void ClientHandler::Run(Slate* wm) {
                 XMapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
             case SWITCH_WORKSPACE:
-                Workspace::switchTo(wm, jmsg["Workspace"]);
+                wm->switchToWorkspace(jmsg["Workspace"]);
                 break;
             default:
                 break;

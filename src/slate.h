@@ -12,8 +12,6 @@
 
 #include "layout/workspace.h"
 
-class Workspace;
-
 struct slate_state_t{
     bool meta = false;
     bool shift = false;
@@ -35,8 +33,9 @@ private:
 
     Slate();
     void XEventLoop();
-    void ClientLoop();
 
+    void hideWorkspace();
+    void showWorkspace(std::string targetName);
 
 public:
     zmq::socket_t fromclient;
@@ -47,7 +46,7 @@ public:
     ~Slate();
     static std::shared_ptr<Slate> getInstance();
     static void XEventLoopWrapper();
-    static void ClientLoopWrapper();
+    void switchToWorkspace(std::string targetName);
 
 };
 

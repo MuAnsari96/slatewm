@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-#include "client_handler.h"
 #include "message.h"
 #include "util.h"
 
@@ -26,7 +25,9 @@ Slate::Slate() :
     display = display_;
     root = DefaultRootWindow(display_);
 
-    state.workspaces["0"] = new Workspace(this, "0");
+    XWindowAttributes attr;
+    XGetWindowAttributes(display, root, &attr);
+    state.workspaces["0"] = new Workspace(attr.width, attr.height, "0");
     state.focused_client = root;
 
     toclient.bind("ipc:///tmp/slateevents");
@@ -66,7 +67,6 @@ void Slate::XEventLoop() {
                     state.keymask.insert(xkeysym);
                 state.focused_client = e.xkey.window;
                 state.workspaces[state.workspaceID]->focused_client = e.xkey.window;
-                state.workspaces[state.workspaceID]->root->drawTile(this);
 
                 Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Delta"] = xkeysym;
@@ -95,8 +95,8 @@ void Slate::XEventLoop() {
                 XChangeWindowAttributes(display, e.xcreatewindow.window, CWDontPropagate | CWEventMask, &attr);
                 Workspace* w = state.workspaces[state.workspaceID];
                 if (w) {
-                    w->addClient(this, e.xcreatewindow.window);
-                    w->root->drawTile(this);
+                    w->addClient(display, e.xcreatewindow.window);
+                    w->root->drawTile(display);
                 }
                 Message::PopulateMessage(&jmsg, state, e);
                 break;
@@ -104,7 +104,8 @@ void Slate::XEventLoop() {
             case DestroyNotify: {
                 Workspace *w = state.workspaces[Workspace::clientLUT[e.xdestroywindow.window]];
                 if (w) {
-                    w->removeClient(this, e.xdestroywindow.window);
+                    w->removeClient(e.xdestroywindow.window);
+                    w->root->drawTile(display);
                 }
                 break;
             }
@@ -118,14 +119,36 @@ void Slate::XEventLoop() {
     }
 }
 
-void Slate::ClientLoop() {
-    ClientHandler::Run(this);
-}
-
 void Slate::XEventLoopWrapper() {
     getInstance()->XEventLoop();
 }
 
-void Slate::ClientLoopWrapper() {
-    getInstance()->ClientLoop();
+void Slate::switchToWorkspace(std::string targetName) {
+    if (state.workspaceID == targetName) {
+        return;
+    }
+    hideWorkspace();
+    showWorkspace(targetName);
+}
+
+void Slate::hideWorkspace() {
+    Workspace *curr = state.workspaces[state.workspaceID];
+    std::unordered_set<unsigned int> clients = curr->clients;
+    for (Window client: clients) {
+        XUnmapWindow(display, client);
+    }
+}
+
+void Slate::showWorkspace(std::string targetName) {
+    if (state.workspaces.count(targetName) == 0) {
+        XWindowAttributes attr;
+        XGetWindowAttributes(display, root, &attr);
+        state.workspaces[targetName] = new Workspace(attr.width, attr.height, targetName);
+    }
+    Workspace *target = state.workspaces[targetName];
+    std::unordered_set<unsigned int> clients = target->clients;
+    for (Window client: clients) {
+        XMapWindow(display, client);
+    }
+    state.workspaceID = targetName;
 }

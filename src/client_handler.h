@@ -11,7 +11,7 @@
 #include "slate.h"
 
 namespace ClientHandler {
-    void Run(Slate* wm);
+    void Run();
 };
 
 

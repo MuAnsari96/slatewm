@@ -4,39 +4,30 @@
 #include <X11/Xlib.h>
 
 #include <unordered_set>
+#include <unordered_map>
 #include <string>
 
 #include "tile.h"
-#include "../slate.h"
-
-class Slate;
-class Tile;
 
 class Workspace {
 public:
     unsigned int focused_client;
     Tile* root;
 
-    Workspace(Slate* wm);
-    Workspace(Slate* wm, std::string name);
+    Workspace(unsigned int width, unsigned int height);
+    Workspace(unsigned int width, unsigned int height, std::string name);
     ~Workspace();
-    void removeClient(Slate* wm, Window w);
-    void addClient(Slate* wm, Window w);
+    void addClient(Display* display, Window w);
+    void removeClient(Window w);
 
     static int default_count;
     static std::unordered_map<Window, std::string> clientLUT;
 
-    static void switchTo(Slate* wm, std::string targetName);
+    std::unordered_set<unsigned int> clients;
 
 private:
     std::string name;
     std::unordered_map<Window, Tile*> tileLUT;
-    std::unordered_set<unsigned int> clients;
-
-
-    static void hideWorkspace(Slate* wm);
-    static void showWorkspace(Slate* wm, std::string targetName);
-
 };
 
 

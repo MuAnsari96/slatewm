@@ -7,89 +7,56 @@
 int Workspace::default_count = 1;
 std::unordered_map<Window, std::string> Workspace::clientLUT;
 
-Workspace::Workspace(Slate* wm) {
+Workspace::Workspace(unsigned int width, unsigned int height) {
     name = std::to_string(default_count);
     default_count++;
-    focused_client = -1;
+    focused_client = 0;
 
-    XWindowAttributes attr;
-    XGetWindowAttributes(wm->display, wm->root, &attr);
-    root = new Tile(attr.width, attr.height);
+    root = new Tile(width, height);
 }
 
-Workspace::Workspace(Slate* wm, std::string name) {
+Workspace::Workspace(unsigned int width, unsigned int height, std::string name) {
     this->name = name;
-    focused_client = -1;
-    XWindowAttributes attr;
-    XGetWindowAttributes(wm->display, wm->root, &attr);
-    root = new Tile(attr.width, attr.height);
+    focused_client = 0;
+    root = new Tile(width, height);
 }
 
 Workspace::~Workspace() {
     root->destroy();
 }
-using namespace std;
 
-void Workspace::addClient(Slate* wm, Window w) {
-    Window top = Client::clientID(wm->display, w);
+void Workspace::addClient(Display* display, Window w) {
+    Window top = Client::clientID(display, w);
     if (clients.count(top) > 0) {
         return;
     }
     clients.emplace(top);
     clientLUT[w] = name;
-    Window topFocused = Client::clientID(wm->display, wm->state.focused_client);
+    Window topFocused = Client::clientID(display, focused_client);
     Tile* focusedTile = root;
     if (tileLUT.count(topFocused) > 0) {
         focusedTile = tileLUT[topFocused];
     }
-    tileLUT[w] = focusedTile->assignClient(wm, w);
+    tileLUT[w] = focusedTile->assignClient(w);
     if (focusedTile->first != nullptr) {
         tileLUT[focusedTile->first->client.get()] = focusedTile->first;
     }
 }
 
-void Workspace::removeClient(Slate* wm, Window w) {
+void Workspace::removeClient(Window w) {
     clientLUT.erase(w);
     clients.erase(w);
     Tile* target = tileLUT[w];
     Tile* parent = target->parent;
+    unsigned int width = target->xLimits.second;
+    unsigned int height = target->yLimits.second;
     target->destroy();
     tileLUT.erase(w);
     if (target == root) {
-        XWindowAttributes attr;
-        XGetWindowAttributes(wm->display, wm->root, &attr);
-        root = new Tile(attr.width, attr.height);
+        root = new Tile(width, height);
     }
     else if (parent != nullptr && parent->client) {
         tileLUT[parent->client.get()] = parent;
     }
-    root->drawTile(wm);
 }
 
-void Workspace::switchTo(Slate *wm, std::string targetName) {
-    if (wm->state.workspaceID == targetName) {
-        return;
-    }
-    hideWorkspace(wm);
-    showWorkspace(wm, targetName);
-}
-
-void Workspace::hideWorkspace(Slate *wm) {
-    Workspace *curr = wm->state.workspaces[wm->state.workspaceID];
-    std::unordered_set<unsigned int> clients = curr->clients;
-    for (Window client: clients) {
-        XUnmapWindow(wm->display, client);
-    }
-}
-
-void Workspace::showWorkspace(Slate *wm, std::string targetName) {
-    if (wm->state.workspaces.count(targetName) == 0) {
-        wm->state.workspaces[targetName] = new Workspace(wm, targetName);
-    }
-    Workspace *target = wm->state.workspaces[targetName];
-    std::unordered_set<unsigned int> clients = target->clients;
-    for (Window client: clients) {
-        XMapWindow(wm->display, client);
-    }
-    wm->state.workspaceID = targetName;
-}

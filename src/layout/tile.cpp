@@ -6,7 +6,7 @@ Tile::Tile() :
     xLimits{0, 0}, yLimits{0, 0}, parent{nullptr},
     first{nullptr}, second{nullptr}, splitType{VERTICAL} {}
 
-Tile::Tile(unsigned int xMax, unsigned int yMax) :
+Tile::Tile(int xMax, int yMax) :
         xLimits{0, xMax}, yLimits{0, yMax}, parent{nullptr},
         first{nullptr}, second{nullptr}, splitType{VERTICAL} {}
 
@@ -35,7 +35,7 @@ void Tile::destroy() {
     delete this;
 }
 
-Tile* Tile::assignClient(Slate* wm, Window client) {
+Tile* Tile::assignClient(Window client) {
     assert(first == nullptr && second == nullptr);
     if (!this->client) {
         this->client = client;
@@ -58,19 +58,18 @@ Tile* Tile::assignClient(Slate* wm, Window client) {
     return second;
 }
 
-void Tile::drawTile(Slate* wm) {
+void Tile::drawTile(Display* display) {
     if (client) {
-        XMoveResizeWindow(wm->display, client.get(), xLimits.first, yLimits.first,
+        XMoveResizeWindow(display, client.get(), xLimits.first, yLimits.first,
                           xLimits.second - xLimits.first, yLimits.second - yLimits.first);
     }
     if (first != nullptr && second != nullptr) {
-        first->drawTile(wm);
-        second->drawTile(wm);
+        first->drawTile(display);
+        second->drawTile(display);
     }
 }
 
 void Tile::recalculateBoundaries() {
-    std::cout << "recalculating" << std::endl;
     if (!first || !second) {
         return;
     }
@@ -129,13 +128,6 @@ void Tile::deleteChild(Tile *child) {
 
     prop->parent = nullptr;
     prop->destroy();
-}
-
-void Tile::killUpdate(Slate *wm, Tile *tile) {
-    Tile* parent= tile->parent;
-    XKillClient(wm->display, tile->client.get());
-    tile->destroy();
-    parent->drawTile(wm);
 }
 
 void Tile::printHier(int level) {

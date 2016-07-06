@@ -6,8 +6,6 @@
 #include <boost/optional/optional_io.hpp>
 #include <utility>
 
-#include "../slate.h"
-
 typedef std::pair<unsigned int, unsigned int> tuple;
 class Slate;
 
@@ -19,16 +17,16 @@ enum SplitType {
 class Tile {
 public:
     Tile();
-    Tile(unsigned int xMax, unsigned int yMax);
+    Tile(int xMax, int yMax);
     Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client);
     Tile(tuple xLimits, tuple yLimits, Tile* parent,
          boost::optional<Window> client, SplitType splitType);
 
     ~Tile();
 
-    Tile* assignClient(Slate* wm, Window client);
+    Tile* assignClient(Window client);
 
-    void drawTile(Slate* wm);
+    void drawTile(Display* display);
     void recalculateBoundaries();
     void deleteChild(Tile* child);
     void destroy();
@@ -36,7 +34,6 @@ public:
 
     friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
 
-    static void killUpdate(Slate* wm, Tile *tile);
 
 
     SplitType splitType;
