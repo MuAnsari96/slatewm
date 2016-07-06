@@ -6,8 +6,9 @@
 #define UNHIDE_FOCUSED_CLIENT 2
 #define SWITCH_WORKSPACE 3
 
-#include "slate.h"
 #include <unordered_map>
+
+#include "slate.h"
 
 namespace ClientHandler {
     void Run(Slate* wm);

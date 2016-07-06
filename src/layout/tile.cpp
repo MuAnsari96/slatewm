@@ -1,5 +1,6 @@
-#include <iostream>
 #include "tile.h"
+
+#include <iostream>
 
 Tile::Tile() :
     xLimits{0, 0}, yLimits{0, 0}, parent{nullptr},

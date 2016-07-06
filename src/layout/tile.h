@@ -1,11 +1,12 @@
 #ifndef SLATEWM_TILE_H
 #define SLATEWM_TILE_H
 
-#include <utility>
-#include "boost/optional.hpp"
-#include <boost/optional/optional_io.hpp>
-#include "../slate.h"
 #include <X11/Xlib.h>
+
+#include <boost/optional/optional_io.hpp>
+#include <utility>
+
+#include "../slate.h"
 
 typedef std::pair<unsigned int, unsigned int> tuple;
 class Slate;

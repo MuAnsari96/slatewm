@@ -1,4 +1,3 @@
-#include <iostream>
 #include "client.h"
 
 Client::Client(int Xid) {

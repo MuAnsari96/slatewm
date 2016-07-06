@@ -1,8 +1,8 @@
-#include <iostream>
-#include <X11/Xlib.h>
 #include "workspace.h"
+
+#include <iostream>
+
 #include "client.h"
-#include <boost/optional/optional_io.hpp>
 
 int Workspace::default_count = 1;
 std::unordered_map<Window, std::string> Workspace::clientLUT;
@@ -91,6 +91,5 @@ void Workspace::showWorkspace(Slate *wm, std::string targetName) {
     for (Window client: clients) {
         XMapWindow(wm->display, client);
     }
-    //target->root->drawTile(wm);
     wm->state.workspaceID = targetName;
 }

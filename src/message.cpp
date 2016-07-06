@@ -1,5 +1,6 @@
-#include <X11/Xlib.h>
 #include "message.h"
+
+#include <X11/Xlib.h>
 
 void Message::PopulateMessage(json *j, const slate_state_t &state, const XEvent &e) {
     (*j)["Event"] = "Default";

@@ -1,8 +1,7 @@
 #include <iostream>
 #include <thread>
+
 #include "slate.h"
-#include <unordered_set>
-#include <unordered_map>
 
 int main() {
     std::shared_ptr<Slate> wm = Slate::getInstance();

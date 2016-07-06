@@ -1,12 +1,13 @@
 #ifndef SLATEWM_WORKSPACE_H
 #define SLATEWM_WORKSPACE_H
+
 #include <X11/Xlib.h>
 
 #include <unordered_set>
 #include <string>
 
-#include "../slate.h"
 #include "tile.h"
+#include "../slate.h"
 
 class Slate;
 class Tile;

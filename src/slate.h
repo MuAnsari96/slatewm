@@ -3,10 +3,13 @@
 
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
+
 #include <memory>
 #include <unordered_set>
 #include <unordered_map>
+
 #include "zmq.hpp"
+
 #include "layout/workspace.h"
 
 class Workspace;

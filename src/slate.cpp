@@ -1,6 +1,7 @@
-#include <iostream>
-#include <X11/Xlib.h>
 #include "slate.h"
+
+#include <iostream>
+
 #include "client_handler.h"
 #include "message.h"
 #include "util.h"

@@ -1,5 +1,7 @@
-#include <iostream>
 #include "client_handler.h"
+
+#include <iostream>
+
 #include "message.h"
 #include "layout/client.h"
 
