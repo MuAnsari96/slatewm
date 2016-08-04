@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "message.h"
+#include "util/message.h"
 #include "layout/client.h"
 
 void ClientHandler::Run() {

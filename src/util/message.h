@@ -5,7 +5,7 @@
 
 #include "json.h"
 
-#include "slate.h"
+#include "../slate.h"
 
 using json = nlohmann::json;
 

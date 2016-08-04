@@ -2,8 +2,8 @@
 
 #include <iostream>
 
-#include "message.h"
-#include "util.h"
+#include "util/message.h"
+#include "util/util.h"
 
 #define ALT 64
 #define CTL 37
