@@ -1,7 +1,10 @@
+from util.layout import LayoutManager
+
 class Handler:
 
     def __init__(self):
         self.keybindings = {}
+        self.layout_manager = LayoutManager()
 
     def handle_keypress(self, press):
         if (press in self.keybindings):

@@ -1,5 +1,5 @@
 class Window:
-    def __init__(self, xcoords, ycoords, client, style = None):
+    def __init__(self, xcoords, ycoords, client = -1, style = None):
         self.xcoords = xcoords
         self.ycoords = ycoords
         self.client = client
@@ -11,9 +11,8 @@ class WindowStyle:
     STACK = 1
     FLOAT = 2
 
-    def __init__(self, id, type, behavior, primary_child = None, secondary_child = None):
+    def __init__(self, id, behavior, primary_child = None, secondary_child = None):
         self.id = id
-        self.type = type
 
         self.behavior = behavior
 
@@ -27,9 +26,11 @@ class WindowStyle:
             self.secondary_child == other.secondary_child
 
 class Layout:
-    def __init__(self, id):
+    def __init__(self, id, root_style):
         self.id = id
+        self.root_style = root_style
         self.styles = {}
+        self.add_style(root_style)
 
     def __getitem__(self, item):
         return self.styles[item]
@@ -66,3 +67,21 @@ class LayoutManager:
 
     def change_layout(self, count):
         self.current_layout = count % len(self.layouts)
+
+
+def HorizontalTile(window):
+    midpoint = (window.ycoords[0] + window.ycoords[1])//2
+    return (Window(window.xcoords, (window.ycoords[0], midpoint)),
+            Window(window.xcoords, (midpoint, window.ycoords[1])))
+
+def VerticalTile(window):
+    midpoint = (window.xcoords[0] + window.xcoords[1])//2
+    return (Window((window.xcoords[0], midpoint), window.ycoords),
+            Window((midpoint, window.xcoords[1]), window.ycoords))
+
+def AutoTile(window):
+    if window.ycoords[1] - window.ycoords[0] > window.xcoords[1] - window.xcoords[0]:
+        return HorizontalTile(window)
+    return VerticalTile(window)
+
+TreeStyle = WindowStyle("tree", AutoTile, "tree", "tree")

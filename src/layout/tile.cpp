@@ -36,6 +36,7 @@ void Tile::destroy() {
 }
 
 Tile* Tile::assignClient(Window client) {
+    // TODO: Switch to python
     assert(first == nullptr && second == nullptr);
     if (!this->client) {
         this->client = client;
@@ -70,6 +71,7 @@ void Tile::drawTile(Display* display) {
 }
 
 void Tile::recalculateBoundaries() {
+    // TODO: Switch to python
     if (!first || !second) {
         return;
     }
