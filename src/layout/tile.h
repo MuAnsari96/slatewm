@@ -5,29 +5,32 @@
 
 #include <boost/optional/optional_io.hpp>
 #include <utility>
+#include <unordered_map>
 
 typedef std::pair<unsigned int, unsigned int> tuple;
 class Slate;
 
-enum SplitType {
-    HORIZONTAL,
-    VERTICAL
+enum StyleType {
+    TILE = 0,
+    STACK = 1,
+    FLOAT = 2
 };
 
 class Tile {
 public:
     Tile();
+    Tile(Tile* parent, boost::optional<Window> client);
     Tile(int xMax, int yMax);
     Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client);
     Tile(tuple xLimits, tuple yLimits, Tile* parent,
-         boost::optional<Window> client, SplitType splitType);
+         boost::optional<Window> client, StyleType styleType);
 
     ~Tile();
 
     Tile* assignClient(Window client);
 
     void drawTile(Display* display);
-    void recalculateBoundaries();
+    void recalculateBoundaries(bool isRoot);
     void deleteChild(Tile* child);
     void destroy();
     void printHier(int level);
@@ -36,7 +39,7 @@ public:
 
 
 
-    SplitType splitType;
+    StyleType styleType;
     Tile* first;
     Tile* second;
     Tile* parent;
@@ -45,6 +48,14 @@ public:
 
     tuple xLimits;
     tuple yLimits;
+
+    std::string style;
+    unsigned int id;
+
+    static unsigned int nextIndex;
+    static std::unordered_map<unsigned int, Tile*> tileLUT;
+
+    static Tile* restyleTile(unsigned int id, tuple xLimits, tuple yLimits, StyleType styleType, std::string style, bool root);
 };
 
 

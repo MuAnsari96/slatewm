@@ -2,8 +2,12 @@
 
 #include <iostream>
 
+#include "../lib/json.h"
+
 #include "util/message.h"
 #include "layout/client.h"
+
+using json = nlohmann::json;
 
 void ClientHandler::Run() {
     std::shared_ptr<Slate> wm = Slate::getInstance();
@@ -16,21 +20,57 @@ void ClientHandler::Run() {
         int event = jmsg["Event"];
 
         switch(event) {
-            case Kill_FOCUSED_CLIENT:
+            case Message::FromClient::Kill_FOCUSED_CLIENT:
                 XKillClient(wm->display, wm->state.focused_client);
                 break;
-            case HIDE_FOCUSED_CLIENT:
+            case Message::FromClient::HIDE_FOCUSED_CLIENT:
                 XUnmapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
-            case UNHIDE_FOCUSED_CLIENT:
+            case Message::FromClient::UNHIDE_FOCUSED_CLIENT:
                 XMapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
-            case SWITCH_WORKSPACE:
+            case Message::FromClient::SWITCH_WORKSPACE:
                 wm->switchToWorkspace(jmsg["Workspace"]);
                 break;
+            case Message::FromClient::RESTYLE_ROOT: {
+                auto window = jmsg["Root"];
+                int styleType = window["styleType"];
+                Tile* tile = Tile::restyleTile(window["id"],
+                                               {window["xmin"],window["xmax"]},
+                                               {window["ymin"],window["ymax"]},
+                                               static_cast<StyleType>(styleType),
+                                               window["style"],
+                                               true);
+                tile->drawTile(wm->display);
+                break;
+            }
+            case Message::FromClient::RESTYLE_CHILDREN: {
+                auto primary = jmsg["Primary"];
+                int styleType = primary["styleType"];
+                Tile* tile = Tile::restyleTile(primary["id"],
+                                               {primary["xmin"],primary["xmax"]},
+                                               {primary["ymin"],primary["ymax"]},
+                                               static_cast<StyleType>(styleType),
+                                               primary["style"],
+                                               false);
+                tile->drawTile(wm->display);
+
+
+                auto secondary = jmsg["Secondary"];
+                styleType = secondary["styleType"];
+                tile = Tile::restyleTile(secondary["id"],
+                                         {secondary["xmin"],secondary["xmax"]},
+                                         {secondary["ymin"],secondary["ymax"]},
+                                         static_cast<StyleType>(styleType),
+                                         secondary["style"],
+                                         false);
+                tile->drawTile(wm->display);
+                break;
+            }
             default:
                 break;
         }
     }
 }
+
 

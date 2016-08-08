@@ -1,31 +1,42 @@
 #include "tile.h"
+#include "../util/message.h"
 
-#include <iostream>
+unsigned int Tile::nextIndex = 1;
+std::unordered_map<unsigned int, Tile*> Tile::tileLUT;
+
 
 Tile::Tile() :
-    xLimits{0, 0}, yLimits{0, 0}, parent{nullptr},
-    first{nullptr}, second{nullptr}, splitType{VERTICAL} {}
-
-Tile::Tile(int xMax, int yMax) :
-        xLimits{0, xMax}, yLimits{0, yMax}, parent{nullptr},
-        first{nullptr}, second{nullptr}, splitType{VERTICAL} {}
-
-Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client) :
-    xLimits{xLimits}, yLimits{yLimits}, parent{parent},
-    client{client}, first{nullptr}, second{nullptr} {
-    if (xLimits.second - xLimits.first >= yLimits.second - yLimits.first) {
-        splitType = VERTICAL;
-    }
-    else {
-        splitType = HORIZONTAL;
-    }
+        xLimits{0, 0}, yLimits{0, 0}, parent{nullptr}, id{nextIndex++},
+        first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
+    tileLUT[id] = this;
 }
 
-Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client, SplitType splitType) :
-        xLimits{xLimits}, yLimits{yLimits}, parent{parent},
-        client{client}, first{nullptr}, second{nullptr}, splitType{splitType} {}
+Tile::Tile(Tile* parent, boost::optional<Window> client) :
+        xLimits{0, 0}, yLimits{0, 0}, parent{parent}, id{nextIndex++},
+        client{client}, first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
+    tileLUT[id] = this;
+}
+
+Tile::Tile(int xMax, int yMax) :
+        xLimits{0, xMax}, yLimits{0, yMax}, parent{nullptr}, id{nextIndex++},
+        first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
+    tileLUT[id] = this;
+}
+
+Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client) :
+    xLimits{xLimits}, yLimits{yLimits}, parent{parent}, id{nextIndex++},
+    client{client}, first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
+    tileLUT[id] = this;
+}
+
+Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client, StyleType styleType) :
+        xLimits{xLimits}, yLimits{yLimits}, parent{parent}, id{nextIndex++},
+        client{client}, first{nullptr}, second{nullptr}, styleType{styleType}, style{""} {
+    tileLUT[id] = this;
+}
 
 Tile::~Tile() {
+    tileLUT.erase(id);
 }
 
 void Tile::destroy() {
@@ -36,30 +47,34 @@ void Tile::destroy() {
 }
 
 Tile* Tile::assignClient(Window client) {
+    json msg;
     assert(first == nullptr && second == nullptr);
     if (!this->client) {
         this->client = client;
+        msg["Event"] = Message::ToClient::GET_ROOT_WINDOW;
+        Message::AppendToMessage(&msg, *this);
+        Message::SendToClient(&msg);
+
         return this;
     }
-    if (splitType == HORIZONTAL) {
-        first = new Tile(xLimits, {yLimits.first, (yLimits.first + yLimits.second)/2},
-                         this, this->client);
-        second = new Tile(xLimits, {(yLimits.first + yLimits.second)/2, yLimits.second},
-                         this, client);
 
-    }
-    else if (splitType == VERTICAL) {
-        first = new Tile({xLimits.first, (xLimits.first + xLimits.second)/2}, yLimits,
-                         this, this->client);
-        second = new Tile({(xLimits.first + xLimits.second)/2, xLimits.second}, yLimits,
-                          this, client);
-    }
+    first = new Tile(this, this->client);
+    second = new Tile(this, client);
     this->client.reset();
+    msg["Event"] = Message::ToClient::GET_CHILD_WINDOWS;
+    Message::AppendToMessage(&msg, *this, *first, *second);
+    Message::SendToClient(&msg);
+
     return second;
 }
 
 void Tile::drawTile(Display* display) {
     if (client) {
+        // Even though the XLib docs SAY NOTHING AT ALL ABOUT THIS, windows need nonzero dimensions
+        if (xLimits.second - xLimits.first == 0 || yLimits.second - yLimits.first == 0){
+            return;
+        };
+
         XMoveResizeWindow(display, client.get(), xLimits.first, yLimits.first,
                           xLimits.second - xLimits.first, yLimits.second - yLimits.first);
     }
@@ -69,38 +84,22 @@ void Tile::drawTile(Display* display) {
     }
 }
 
-void Tile::recalculateBoundaries() {
+void Tile::recalculateBoundaries(bool isRoot) {
     if (!first || !second) {
         return;
     }
-    if (splitType == HORIZONTAL) {
-        first->xLimits = xLimits;
-        first->yLimits = {yLimits.first, (yLimits.first + yLimits.second)/2};
-        second->xLimits = xLimits;
-        second->yLimits = {(yLimits.first + yLimits.second)/2, yLimits.second};
-    }
-    else if (splitType == VERTICAL) {
-        first->xLimits = {xLimits.first, (xLimits.first + xLimits.second)/2};
-        first->yLimits = yLimits;
-        second->xLimits = {(xLimits.first + xLimits.second)/2, xLimits.second};
-        second->yLimits = yLimits;
+
+    json msg;
+    if (isRoot) {
+        msg["Event"] = Message::ToClient::GET_ROOT_WINDOW;
+        Message::AppendToMessage(&msg, *this);
+        Message::SendToClient(&msg);
+        return;
     }
 
-    if (first->xLimits.second - first->xLimits.first >= first->yLimits.second - first->yLimits.first) {
-        first->splitType = VERTICAL;
-    }
-    else {
-        first->splitType = HORIZONTAL;
-    }
-
-    if (second->xLimits.second - second->xLimits.first >= second->yLimits.second - second->yLimits.first) {
-        second->splitType = VERTICAL;
-    }
-    else {
-        second->splitType = HORIZONTAL;
-    }
-    first->recalculateBoundaries();
-    second->recalculateBoundaries();
+    msg["Event"] = Message::ToClient::GET_CHILD_WINDOWS;
+    Message::AppendToMessage(&msg, *this, *first, *second);
+    Message::SendToClient(&msg);
 }
 
 void Tile::deleteChild(Tile *child) {
@@ -123,7 +122,7 @@ void Tile::deleteChild(Tile *child) {
         first->parent = this;
         second->parent = this;
         std::cout << *this << std::endl;
-        recalculateBoundaries();
+        recalculateBoundaries(parent == nullptr);
     }
 
     prop->parent = nullptr;
@@ -149,4 +148,23 @@ std::ostream& operator<< (std::ostream& out, const Tile& tile) {
         << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
 }
 
+Tile* Tile::restyleTile(unsigned int id, tuple xLimits, tuple yLimits,
+                       StyleType styleType, std::string style, bool root) {
+    Tile* tile = tileLUT[id];
+    tile->style = style;
+    tile->styleType = styleType;
 
+    if (root) {
+        switch(styleType) {
+            case StyleType::TILE:
+            case StyleType::STACK:
+                return tile;
+            case StyleType::FLOAT:
+                break;
+        }
+    }
+
+    tile->xLimits = xLimits;
+    tile->yLimits = yLimits;
+    return tile;
+}

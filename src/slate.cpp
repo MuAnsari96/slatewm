@@ -32,6 +32,8 @@ Slate::Slate() :
 
     toclient.bind("ipc:///tmp/slateevents");
     fromclient.bind("ipc:///tmp/slateclient");
+
+    Message::InitClientSocket(&toclient);
 }
 
 Slate::~Slate() {
@@ -70,7 +72,7 @@ void Slate::XEventLoop() {
 
                 Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Delta"] = xkeysym;
-                jmsg["Event"] = "KeyPress";
+                jmsg["Event"] = Message::ToClient::KEY_PRESS ;
                 break;
             }
             case KeyRelease: {
@@ -85,7 +87,7 @@ void Slate::XEventLoop() {
                 state.keymask.erase(xkeysym);
 
                 Message::PopulateMessage(&jmsg, state, e);
-                jmsg["Event"] = "KeyRelease";
+                jmsg["Event"] = Message::ToClient::KEY_RELEASE ;
                 break;
             }
             case CreateNotify: {
@@ -112,10 +114,7 @@ void Slate::XEventLoop() {
             default:
                 break;
         }
-        std::string jmsg_str = jmsg.dump();
-        zmq::message_t msg(jmsg_str.size());
-        memcpy(msg.data(), jmsg_str.c_str(), jmsg_str.size());
-        toclient.send(msg, ZMQ_NOBLOCK);
+        Message::SendToClient(&jmsg);
     }
 }
 

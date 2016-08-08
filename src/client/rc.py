@@ -3,6 +3,7 @@ from events import *
 import util
 
 client = Handler()
+layout = client.layout_manager
 
 client.register_keypress(
     KeyPress(alt=True, shift=True, mask='c'),
@@ -31,3 +32,5 @@ client.register_keypress(
 client.register_keypress(
     KeyPress(alt=True, mask='3'),
     callback=lambda: util.SwitchWorkspace('c'))
+
+layout.add_layout(util.Layout("auto", util.Window(), util.TreeStyle))
