@@ -70,6 +70,11 @@ Tile* Tile::assignClient(Window client) {
 
 void Tile::drawTile(Display* display) {
     if (client) {
+        // Even though the XLib docs SAY NOTHING AT ALL ABOUT THIS, windows need nonzero dimensions
+        if (xLimits.second - xLimits.first == 0 || yLimits.second - yLimits.first == 0){
+            return;
+        };
+
         XMoveResizeWindow(display, client.get(), xLimits.first, yLimits.first,
                           xLimits.second - xLimits.first, yLimits.second - yLimits.first);
     }
