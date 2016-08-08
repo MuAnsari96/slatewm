@@ -34,7 +34,6 @@ def event_loop(fromwm):
 
         elif event == util.FromSlate.GET_CHILD_WINDOWS:
             window = msg["Window"]
-            print(window)
             [primary, secondary] = \
                 client.layout_manager.split(
                     util.StyledWindow(xcoords=(window["xmin"], window["xmax"]),
