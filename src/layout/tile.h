@@ -5,7 +5,10 @@
 
 #include <boost/optional/optional_io.hpp>
 #include <utility>
+#include <bits/unordered_map.h>
+#include "../../lib/json.h"
 
+using json = nlohmann::json;
 typedef std::pair<unsigned int, unsigned int> tuple;
 class Slate;
 
@@ -31,6 +34,7 @@ public:
     void deleteChild(Tile* child);
     void destroy();
     void printHier(int level);
+    void addToJson(json* j);
 
     friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
 
@@ -45,6 +49,14 @@ public:
 
     tuple xLimits;
     tuple yLimits;
+
+    std::string style;
+    unsigned int id;
+
+    static unsigned int nextIndex;
+    static std::unordered_map<unsigned int, Tile*> tileLUT;
+
+    static void restyleTile(unsigned int id, tuple xLimits, tuple yLimits, std::string style);
 };
 
 

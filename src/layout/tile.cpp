@@ -1,18 +1,24 @@
 #include "tile.h"
+#include "../util/message.h"
 
-#include <iostream>
+unsigned int Tile::nextIndex = 1;
 
 Tile::Tile() :
-    xLimits{0, 0}, yLimits{0, 0}, parent{nullptr},
-    first{nullptr}, second{nullptr}, splitType{VERTICAL} {}
+    xLimits{0, 0}, yLimits{0, 0}, parent{nullptr}, id{nextIndex++},
+    first{nullptr}, second{nullptr}, splitType{VERTICAL}, style{""} {
+    tileLUT.insert(id, this);
+}
 
 Tile::Tile(int xMax, int yMax) :
-        xLimits{0, xMax}, yLimits{0, yMax}, parent{nullptr},
-        first{nullptr}, second{nullptr}, splitType{VERTICAL} {}
+        xLimits{0, xMax}, yLimits{0, yMax}, parent{nullptr}, id{nextIndex++},
+        first{nullptr}, second{nullptr}, splitType{VERTICAL}, style{""} {
+    tileLUT.insert(id, this);
+}
 
 Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client) :
-    xLimits{xLimits}, yLimits{yLimits}, parent{parent},
-    client{client}, first{nullptr}, second{nullptr} {
+    xLimits{xLimits}, yLimits{yLimits}, parent{parent}, id{nextIndex++},
+    client{client}, first{nullptr}, second{nullptr}, style{""} {
+    tileLUT.insert(id, this);
     if (xLimits.second - xLimits.first >= yLimits.second - yLimits.first) {
         splitType = VERTICAL;
     }
@@ -22,10 +28,13 @@ Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> c
 }
 
 Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client, SplitType splitType) :
-        xLimits{xLimits}, yLimits{yLimits}, parent{parent},
-        client{client}, first{nullptr}, second{nullptr}, splitType{splitType} {}
+        xLimits{xLimits}, yLimits{yLimits}, parent{parent}, id{nextIndex++},
+        client{client}, first{nullptr}, second{nullptr}, splitType{splitType}, style{""} {
+    tileLUT.insert(id, this);
+}
 
 Tile::~Tile() {
+    tileLUT.erase(id);
 }
 
 void Tile::destroy() {
@@ -150,5 +159,3 @@ std::ostream& operator<< (std::ostream& out, const Tile& tile) {
     out << "Tile(x: " << tile.xLimits.first << ", " << tile.xLimits.second << " | y: " << tile.yLimits.first
         << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
 }
-
-
