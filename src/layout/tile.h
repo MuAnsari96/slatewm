@@ -12,18 +12,20 @@ using json = nlohmann::json;
 typedef std::pair<unsigned int, unsigned int> tuple;
 class Slate;
 
-enum SplitType {
-    HORIZONTAL,
-    VERTICAL
+enum StyleType {
+    TILE,
+    STACK,
+    FLOAT
 };
 
 class Tile {
 public:
     Tile();
+    Tile(Tile* parent, boost::optional<Window> client);
     Tile(int xMax, int yMax);
     Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client);
     Tile(tuple xLimits, tuple yLimits, Tile* parent,
-         boost::optional<Window> client, SplitType splitType);
+         boost::optional<Window> client, StyleType styleType);
 
     ~Tile();
 
@@ -34,13 +36,12 @@ public:
     void deleteChild(Tile* child);
     void destroy();
     void printHier(int level);
-    void addToJson(json* j);
 
     friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
 
 
 
-    SplitType splitType;
+    StyleType styleType;
     Tile* first;
     Tile* second;
     Tile* parent;

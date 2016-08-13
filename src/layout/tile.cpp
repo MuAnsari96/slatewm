@@ -4,33 +4,33 @@
 unsigned int Tile::nextIndex = 1;
 
 Tile::Tile() :
-    xLimits{0, 0}, yLimits{0, 0}, parent{nullptr}, id{nextIndex++},
-    first{nullptr}, second{nullptr}, splitType{VERTICAL}, style{""} {
-    tileLUT.insert(id, this);
+        xLimits{0, 0}, yLimits{0, 0}, parent{nullptr}, id{nextIndex++},
+        first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
+    tileLUT[id] = this;
+}
+
+Tile::Tile(Tile* parent, boost::optional<Window> client) :
+        xLimits{0, 0}, yLimits{0, 0}, parent{parent}, id{nextIndex++},
+        client{client}, first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
+    tileLUT[id] = this;
 }
 
 Tile::Tile(int xMax, int yMax) :
         xLimits{0, xMax}, yLimits{0, yMax}, parent{nullptr}, id{nextIndex++},
-        first{nullptr}, second{nullptr}, splitType{VERTICAL}, style{""} {
-    tileLUT.insert(id, this);
+        first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
+    tileLUT[id] = this;
 }
 
 Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client) :
     xLimits{xLimits}, yLimits{yLimits}, parent{parent}, id{nextIndex++},
-    client{client}, first{nullptr}, second{nullptr}, style{""} {
-    tileLUT.insert(id, this);
-    if (xLimits.second - xLimits.first >= yLimits.second - yLimits.first) {
-        splitType = VERTICAL;
-    }
-    else {
-        splitType = HORIZONTAL;
-    }
+    client{client}, first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
+    tileLUT[id] = this;
 }
 
-Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client, SplitType splitType) :
+Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client, StyleType styleType) :
         xLimits{xLimits}, yLimits{yLimits}, parent{parent}, id{nextIndex++},
-        client{client}, first{nullptr}, second{nullptr}, splitType{splitType}, style{""} {
-    tileLUT.insert(id, this);
+        client{client}, first{nullptr}, second{nullptr}, styleType{styleType}, style{""} {
+    tileLUT[id] = this;
 }
 
 Tile::~Tile() {
@@ -46,24 +46,22 @@ void Tile::destroy() {
 
 Tile* Tile::assignClient(Window client) {
     // TODO: Switch to python
+    json msg;
     assert(first == nullptr && second == nullptr);
     if (!this->client) {
         this->client = client;
+        msg["Event"] = "FillRootWindow";
+        Message::AppendToMessage(&msg, *this);
+        Message::SendToClient(&msg);
+
         return this;
     }
-    if (splitType == HORIZONTAL) {
-        first = new Tile(xLimits, {yLimits.first, (yLimits.first + yLimits.second)/2},
-                         this, this->client);
-        second = new Tile(xLimits, {(yLimits.first + yLimits.second)/2, yLimits.second},
-                         this, client);
 
-    }
-    else if (splitType == VERTICAL) {
-        first = new Tile({xLimits.first, (xLimits.first + xLimits.second)/2}, yLimits,
-                         this, this->client);
-        second = new Tile({(xLimits.first + xLimits.second)/2, xLimits.second}, yLimits,
-                          this, client);
-    }
+    msg["Event"] = "SplitWindow";
+    first = new Tile(this, this->client);
+    second = new Tile(this, client);
+
+
     this->client.reset();
     return second;
 }
@@ -84,13 +82,13 @@ void Tile::recalculateBoundaries() {
     if (!first || !second) {
         return;
     }
-    if (splitType == HORIZONTAL) {
+    if (styleType == HORIZONTAL) {
         first->xLimits = xLimits;
         first->yLimits = {yLimits.first, (yLimits.first + yLimits.second)/2};
         second->xLimits = xLimits;
         second->yLimits = {(yLimits.first + yLimits.second)/2, yLimits.second};
     }
-    else if (splitType == VERTICAL) {
+    else if (styleType == VERTICAL) {
         first->xLimits = {xLimits.first, (xLimits.first + xLimits.second)/2};
         first->yLimits = yLimits;
         second->xLimits = {(xLimits.first + xLimits.second)/2, xLimits.second};
@@ -98,17 +96,17 @@ void Tile::recalculateBoundaries() {
     }
 
     if (first->xLimits.second - first->xLimits.first >= first->yLimits.second - first->yLimits.first) {
-        first->splitType = VERTICAL;
+        first->styleType = VERTICAL;
     }
     else {
-        first->splitType = HORIZONTAL;
+        first->styleType = HORIZONTAL;
     }
 
     if (second->xLimits.second - second->xLimits.first >= second->yLimits.second - second->yLimits.first) {
-        second->splitType = VERTICAL;
+        second->styleType = VERTICAL;
     }
     else {
-        second->splitType = HORIZONTAL;
+        second->styleType = HORIZONTAL;
     }
     first->recalculateBoundaries();
     second->recalculateBoundaries();
@@ -158,4 +156,9 @@ void Tile::printHier(int level) {
 std::ostream& operator<< (std::ostream& out, const Tile& tile) {
     out << "Tile(x: " << tile.xLimits.first << ", " << tile.xLimits.second << " | y: " << tile.yLimits.first
         << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
+}
+
+void Tile::restyleTile(unsigned int id, tuple xLimits, tuple yLimits, std::string style) {
+    Tile* tile = tileLUT[id];
+
 }

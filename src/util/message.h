@@ -14,6 +14,7 @@ using json = nlohmann::json;
 namespace Message {
     void PopulateMessage(json *j, const slate_state_t &state, const XEvent &e);
     void AppendToMessage(json *j, const Tile& tile);
+    void AppendToMessage(json *j, const Tile& toSplit, const Tile& primary, const Tile& secondary);
     void InitClientSocket(const zmq::socket_t& toClient);
 
     void SendToClient(json *j);

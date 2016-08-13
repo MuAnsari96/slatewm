@@ -19,13 +19,24 @@ void Message::PopulateMessage(json *j, const slate_state_t &state, const XEvent 
 
 void Message::AppendToMessage(json *j, const Tile& tile) {
     (*j)["Window"] = {
-            {"client", tile.client},
             {"style", tile.style},
             {"xmin", tile.xLimits.first},
             {"xmax", tile.xLimits.second},
             {"ymin", tile.yLimits.first},
             {"ymax", tile.yLimits.second},
             {"primaryID", tile.id}
+    };
+}
+
+void Message::AppendToMessage(json *j, const Tile &toSplit, const Tile &primary, const Tile &secondary) {
+    (*j)["Window"] = {
+            {"style", toSplit.style},
+            {"xmin", toSplit.xLimits.first},
+            {"xmax", toSplit.xLimits.second},
+            {"ymin", toSplit.yLimits.first},
+            {"ymax", toSplit.yLimits.second},
+            {"primaryID", primary.id},
+            {"secondaryID", secondary.id}
     };
 }
 
