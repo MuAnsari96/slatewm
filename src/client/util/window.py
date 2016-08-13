@@ -1,20 +1,20 @@
 from util.message import get_conn
-from util.message import Events
+from util.message import ToSlate
 
 towm = get_conn()
 
 def KillFocusedClient():
-    msg = {"Event": Events.KILL_FOCUSED_CLIENT}
+    msg = {"Event": ToSlate.KILL_FOCUSED_CLIENT}
     towm.send_json(msg)
 
 def HideFocusedClient():
-    msg = {"Event": Events.HIDE_FOCUSED_CLIENT}
+    msg = {"Event": ToSlate.HIDE_FOCUSED_CLIENT}
     towm.send_json(msg)
 
 def UnhideFocusedClient():
-    msg = {"Event": Events.UNHIDE_FOCUSED_CLIENT}
+    msg = {"Event": ToSlate.UNHIDE_FOCUSED_CLIENT}
     towm.send_json(msg)
 
 def SwitchWorkspace(workspaceid):
-    msg = {"Event": Events.SWITCH_WORKSPACE, "Workspace": workspaceid}
+    msg = {"Event": ToSlate.SWITCH_WORKSPACE, "Workspace": workspaceid}
     towm.send_json(msg)

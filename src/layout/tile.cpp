@@ -45,24 +45,24 @@ void Tile::destroy() {
 }
 
 Tile* Tile::assignClient(Window client) {
-    // TODO: Switch to python
     json msg;
     assert(first == nullptr && second == nullptr);
     if (!this->client) {
         this->client = client;
-        msg["Event"] = "FillRootWindow";
+        msg["Event"] = Message::ToClient::FILL_ROOT_WINDOW;
         Message::AppendToMessage(&msg, *this);
         Message::SendToClient(&msg);
 
         return this;
     }
 
-    msg["Event"] = "SplitWindow";
     first = new Tile(this, this->client);
     second = new Tile(this, client);
-
-
     this->client.reset();
+    msg["Event"] = Message::ToClient::SPLIT_WINDOW;
+    Message::AppendToMessage(&msg, *this, *first, *second);
+    Message::SendToClient(&msg);
+
     return second;
 }
 
@@ -77,39 +77,22 @@ void Tile::drawTile(Display* display) {
     }
 }
 
-void Tile::recalculateBoundaries() {
-    // TODO: Switch to python
+void Tile::recalculateBoundaries(bool isRoot=false) {
     if (!first || !second) {
         return;
     }
-    if (styleType == HORIZONTAL) {
-        first->xLimits = xLimits;
-        first->yLimits = {yLimits.first, (yLimits.first + yLimits.second)/2};
-        second->xLimits = xLimits;
-        second->yLimits = {(yLimits.first + yLimits.second)/2, yLimits.second};
-    }
-    else if (styleType == VERTICAL) {
-        first->xLimits = {xLimits.first, (xLimits.first + xLimits.second)/2};
-        first->yLimits = yLimits;
-        second->xLimits = {(xLimits.first + xLimits.second)/2, xLimits.second};
-        second->yLimits = yLimits;
+
+    json msg;
+    if (isRoot) {
+        msg["Event"] = Message::ToClient::RECALCULATE_ROOT_BOUNDARY;
+        Message::AppendToMessage(&msg, *this);
+        Message::SendToClient(&msg);
+        return;
     }
 
-    if (first->xLimits.second - first->xLimits.first >= first->yLimits.second - first->yLimits.first) {
-        first->styleType = VERTICAL;
-    }
-    else {
-        first->styleType = HORIZONTAL;
-    }
-
-    if (second->xLimits.second - second->xLimits.first >= second->yLimits.second - second->yLimits.first) {
-        second->styleType = VERTICAL;
-    }
-    else {
-        second->styleType = HORIZONTAL;
-    }
-    first->recalculateBoundaries();
-    second->recalculateBoundaries();
+    msg["Event"] = Message::ToClient::RECALCULATE_BOUNDARIES;
+    Message::AppendToMessage(&msg, *this, *first, *second);
+    Message::SendToClient(&msg);
 }
 
 void Tile::deleteChild(Tile *child) {
@@ -132,7 +115,7 @@ void Tile::deleteChild(Tile *child) {
         first->parent = this;
         second->parent = this;
         std::cout << *this << std::endl;
-        recalculateBoundaries();
+        recalculateBoundaries(parent == nullptr);
     }
 
     prop->parent = nullptr;

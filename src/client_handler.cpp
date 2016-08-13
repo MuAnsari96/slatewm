@@ -16,16 +16,16 @@ void ClientHandler::Run() {
         int event = jmsg["Event"];
 
         switch(event) {
-            case Kill_FOCUSED_CLIENT:
+            case Message::FromClient::Kill_FOCUSED_CLIENT:
                 XKillClient(wm->display, wm->state.focused_client);
                 break;
-            case HIDE_FOCUSED_CLIENT:
+            case Message::FromClient::HIDE_FOCUSED_CLIENT:
                 XUnmapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
-            case UNHIDE_FOCUSED_CLIENT:
+            case Message::FromClient::UNHIDE_FOCUSED_CLIENT:
                 XMapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
                 break;
-            case SWITCH_WORKSPACE:
+            case Message::FromClient::SWITCH_WORKSPACE:
                 wm->switchToWorkspace(jmsg["Workspace"]);
                 break;
             default:

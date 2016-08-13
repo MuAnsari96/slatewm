@@ -72,7 +72,7 @@ void Slate::XEventLoop() {
 
                 Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Delta"] = xkeysym;
-                jmsg["Event"] = "KeyPress";
+                jmsg["Event"] = Message::ToClient::KEY_PRESS ;
                 break;
             }
             case KeyRelease: {
@@ -87,7 +87,7 @@ void Slate::XEventLoop() {
                 state.keymask.erase(xkeysym);
 
                 Message::PopulateMessage(&jmsg, state, e);
-                jmsg["Event"] = "KeyRelease";
+                jmsg["Event"] = Message::ToClient::KEY_RELEASE ;
                 break;
             }
             case CreateNotify: {

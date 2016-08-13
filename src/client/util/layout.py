@@ -1,9 +1,10 @@
 class Window:
-    def __init__(self, xcoords, ycoords, client = -1, style = None):
+    def __init__(self, xcoords, ycoords, id = 0, style=None, style_type=WindowStyle.TILE):
         self.xcoords = xcoords
         self.ycoords = ycoords
-        self.client = client
+        self.id = id
         self.style = style
+        self.style_type = style_type
 
 
 class WindowStyle:
@@ -11,13 +12,15 @@ class WindowStyle:
     STACK = 1
     FLOAT = 2
 
-    def __init__(self, id, behavior, primary_child = None, secondary_child = None):
+    def __init__(self, id, behavior, root_type, primary_child = None, secondary_child = None):
         self.id = id
 
         self.behavior = behavior
 
         self.primary_child = primary_child
         self.secondary_child = secondary_child
+
+        self.root_type = root_type
 
     def __eq__(self, other):
         return self.id == other.id and \
@@ -67,6 +70,9 @@ class LayoutManager:
 
     def change_layout(self, count):
         self.current_layout = count % len(self.layouts)
+
+    def apply(self, window):
+        return self.layouts[self.current_layout][window.style].behavior(window)
 
 
 def HorizontalTile(window):

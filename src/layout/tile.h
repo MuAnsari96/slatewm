@@ -32,7 +32,7 @@ public:
     Tile* assignClient(Window client);
 
     void drawTile(Display* display);
-    void recalculateBoundaries();
+    void recalculateBoundaries(bool isRoot);
     void deleteChild(Tile* child);
     void destroy();
     void printHier(int level);
