@@ -59,7 +59,7 @@ Tile* Tile::assignClient(Window client) {
     first = new Tile(this, this->client);
     second = new Tile(this, client);
     this->client.reset();
-    msg["Event"] = Message::ToClient::SPLIT_WINDOW;
+    msg["Event"] = Message::ToClient::GET_CHILD_WINDOWS;
     Message::AppendToMessage(&msg, *this, *first, *second);
     Message::SendToClient(&msg);
 
@@ -77,7 +77,7 @@ void Tile::drawTile(Display* display) {
     }
 }
 
-void Tile::recalculateBoundaries(bool isRoot=false) {
+void Tile::recalculateBoundaries(bool isRoot) {
     if (!first || !second) {
         return;
     }
@@ -90,7 +90,7 @@ void Tile::recalculateBoundaries(bool isRoot=false) {
         return;
     }
 
-    msg["Event"] = Message::ToClient::RECALCULATE_BOUNDARIES;
+    msg["Event"] = Message::ToClient::GET_CHILD_WINDOWS;
     Message::AppendToMessage(&msg, *this, *first, *second);
     Message::SendToClient(&msg);
 }

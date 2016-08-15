@@ -22,14 +22,31 @@ def event_loop(fromwm):
                              keys["Shift"], keys["Space"], keys["Enter"], keymask)
             client.handle_keypress(press)
 
-        elif event == "SizeResize":
+        elif event == util.FromSlate.KEY_RELEASE:
+            pass
+
+        elif event == util.FromSlate.GET_ROOT_WINDOW:
+            window = msg["Window"]
+            msg = dict()
+            msg["Event"] = util.ToSlate.RESTYLE_ROOT
+            msg["Root"] = client.layout_manager.get_current_layout().root_window.flatten(window["primaryID"])
+            util.sendmsg(msg)
+
+        elif event == util.FromSlate.GET_CHILD_WINDOWS:
             window = msg["Window"]
             primary, secondary = \
                 client.layout_manager.apply(
                     util.Window((window["xmin"], window["xmax"]),
                                 (window["ymin"], window["ymax"]),
-                                window["client"],
-                                window["style"]))
+                                window["style"],
+                                window["styleType"]))
+            msg = dict()
+            msg["Event"] = util.ToSlate.RESTYLE_CHILDREN
+            msg["Primary"] = primary.flatten(window["primaryID"])
+            msg["Secondary"] = secondary.flatten(window["secondaryID"])
+            util.sendmsg(msg)
+
+        elif event == util.FromSlate.DEFAULT:
             pass
 
 if __name__ == "__main__":

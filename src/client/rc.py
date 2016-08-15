@@ -33,4 +33,4 @@ client.register_keypress(
     KeyPress(alt=True, mask='3'),
     callback=lambda: util.SwitchWorkspace('c'))
 
-layout.add_layout(util.Layout("auto", util.TreeStyle))
+layout.add_layout(util.Layout("auto", util.Window(style=util.TreeStyle)))

@@ -28,9 +28,29 @@ void ClientHandler::Run() {
             case Message::FromClient::SWITCH_WORKSPACE:
                 wm->switchToWorkspace(jmsg["Workspace"]);
                 break;
+            case Message::FromClient::RESTYLE_ROOT:
+                json window = jmsg["Root"];
+                restyle(window, *wm->display);
+                break;
+            case Message::FromClient::RESTYLE_CHILDREN:
+                json primary = jmsg["Primary"];
+                json secondary = jmsg["Secondary"];
+                restyle(primary, *wm->display);
+                restyle(secondary, *wm->display);
+                break;
             default:
                 break;
         }
     }
+}
+
+void ClientHandler::restyle(json window, const Display &display) {
+    Tile* tile = Tile::restyleTile(window["id"],
+                                   {window["xmin"], window["xmax"]},
+                                   {window["ymin"], window["ymax"]},
+                                   window["styleType"],
+                                   window["style"],
+                                   true);
+    tile->drawTile(&display);
 }
 

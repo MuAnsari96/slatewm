@@ -18,15 +18,16 @@ namespace Message {
         KEY_PRESS = 0,
         KEY_RELEASE = 1,
         GET_ROOT_WINDOW = 2,
-        SPLIT_WINDOW = 3,
-        RECALCULATE_BOUNDARIES = 4
+        GET_CHILD_WINDOWS = 3
     };
 
     enum FromClient {
         Kill_FOCUSED_CLIENT = 0,
         HIDE_FOCUSED_CLIENT = 1,
         UNHIDE_FOCUSED_CLIENT = 2,
-        SWITCH_WORKSPACE = 3
+        SWITCH_WORKSPACE = 3,
+        RESTYLE_ROOT = 4,
+        RESTYLE_CHILDREN = 5
     };
 
     void PopulateMessage(json *j, const slate_state_t &state, const XEvent &e);
