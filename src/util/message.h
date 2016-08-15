@@ -17,10 +17,9 @@ namespace Message {
         DEFAULT = -1,
         KEY_PRESS = 0,
         KEY_RELEASE = 1,
-        FILL_ROOT_WINDOW = 2,
+        GET_ROOT_WINDOW = 2,
         SPLIT_WINDOW = 3,
-        RECALCULATE_ROOT_BOUNDARY = 4,
-        RECALCULATE_BOUNDARIES = 5
+        RECALCULATE_BOUNDARIES = 4
     };
 
     enum FromClient {

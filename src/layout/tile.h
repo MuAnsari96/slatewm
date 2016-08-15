@@ -57,7 +57,7 @@ public:
     static unsigned int nextIndex;
     static std::unordered_map<unsigned int, Tile*> tileLUT;
 
-    static void restyleTile(unsigned int id, tuple xLimits, tuple yLimits, std::string style);
+    static Tile* restyleTile(unsigned int id, tuple xLimits, tuple yLimits, StyleType styleType, std::string style, bool root);
 };
 
 

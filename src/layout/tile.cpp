@@ -49,7 +49,7 @@ Tile* Tile::assignClient(Window client) {
     assert(first == nullptr && second == nullptr);
     if (!this->client) {
         this->client = client;
-        msg["Event"] = Message::ToClient::FILL_ROOT_WINDOW;
+        msg["Event"] = Message::ToClient::GET_ROOT_WINDOW;
         Message::AppendToMessage(&msg, *this);
         Message::SendToClient(&msg);
 
@@ -84,7 +84,7 @@ void Tile::recalculateBoundaries(bool isRoot=false) {
 
     json msg;
     if (isRoot) {
-        msg["Event"] = Message::ToClient::RECALCULATE_ROOT_BOUNDARY;
+        msg["Event"] = Message::ToClient::GET_ROOT_WINDOW;
         Message::AppendToMessage(&msg, *this);
         Message::SendToClient(&msg);
         return;
@@ -141,7 +141,24 @@ std::ostream& operator<< (std::ostream& out, const Tile& tile) {
         << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
 }
 
-void Tile::restyleTile(unsigned int id, tuple xLimits, tuple yLimits, std::string style) {
+Tile* Tile::restyleTile(unsigned int id, tuple xLimits, tuple yLimits,
+                       StyleType styleType, std::string style, bool root) {
     Tile* tile = tileLUT[id];
+    tile->style = style;
+    tile->styleType = styleType;
+
+    if (root) {
+        switch(styleType) {
+            case StyleType::TILE:
+            case StyleType::STACK:
+                return tile;
+            case StyleType::FLOAT:
+                break;
+        }
+    }
+
+    tile->xLimits = xLimits;
+    tile->yLimits = yLimits;
+    return tile;
 
 }
