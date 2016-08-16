@@ -33,7 +33,7 @@ Slate::Slate() :
     toclient.bind("ipc:///tmp/slateevents");
     fromclient.bind("ipc:///tmp/slateclient");
 
-    Message::InitClientSocket(toclient);
+    Message::InitClientSocket(&toclient);
 }
 
 Slate::~Slate() {

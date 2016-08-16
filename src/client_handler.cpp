@@ -2,8 +2,12 @@
 
 #include <iostream>
 
+#include "../lib/json.h"
+
 #include "util/message.h"
 #include "layout/client.h"
+
+using json = nlohmann::json;
 
 void ClientHandler::Run() {
     std::shared_ptr<Slate> wm = Slate::getInstance();
@@ -28,29 +32,45 @@ void ClientHandler::Run() {
             case Message::FromClient::SWITCH_WORKSPACE:
                 wm->switchToWorkspace(jmsg["Workspace"]);
                 break;
-            case Message::FromClient::RESTYLE_ROOT:
-                json window = jmsg["Root"];
-                restyle(window, *wm->display);
+            case Message::FromClient::RESTYLE_ROOT: {
+                auto window = jmsg["Root"];
+                int styleType = window["styleType"];
+                Tile* tile = Tile::restyleTile(window["id"],
+                                               {window["xmin"],window["xmax"]},
+                                               {window["ymin"],window["ymax"]},
+                                               static_cast<StyleType>(styleType),
+                                               window["style"],
+                                               true);
+                tile->drawTile(wm->display);
                 break;
-            case Message::FromClient::RESTYLE_CHILDREN:
-                json primary = jmsg["Primary"];
-                json secondary = jmsg["Secondary"];
-                restyle(primary, *wm->display);
-                restyle(secondary, *wm->display);
+            }
+            case Message::FromClient::RESTYLE_CHILDREN: {
+                auto primary = jmsg["Primary"];
+                int styleType = primary["styleType"];
+                Tile* tile = Tile::restyleTile(primary["id"],
+                                               {primary["xmin"],primary["xmax"]},
+                                               {primary["ymin"],primary["ymax"]},
+                                               static_cast<StyleType>(styleType),
+                                               primary["style"],
+                                               false);
+                tile->drawTile(wm->display);
+
+
+                auto secondary = jmsg["Secondary"];
+                styleType = secondary["styleType"];
+                tile = Tile::restyleTile(secondary["id"],
+                                         {secondary["xmin"],secondary["xmax"]},
+                                         {secondary["ymin"],secondary["ymax"]},
+                                         static_cast<StyleType>(styleType),
+                                         secondary["style"],
+                                         false);
+                tile->drawTile(wm->display);
                 break;
+            }
             default:
                 break;
         }
     }
 }
 
-void ClientHandler::restyle(json window, const Display &display) {
-    Tile* tile = Tile::restyleTile(window["id"],
-                                   {window["xmin"], window["xmax"]},
-                                   {window["ymin"], window["ymax"]},
-                                   window["styleType"],
-                                   window["style"],
-                                   true);
-    tile->drawTile(&display);
-}
 

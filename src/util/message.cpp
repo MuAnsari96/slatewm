@@ -1,5 +1,9 @@
 #include "message.h"
 
+namespace Message {
+    zmq::socket_t* client;
+}
+
 void Message::PopulateMessage(json *j, const slate_state_t &state, const XEvent &e) {
     (*j)["Event"] = ToClient::DEFAULT;
     (*j)["Client"] = state.focused_client;
@@ -42,8 +46,8 @@ void Message::AppendToMessage(json *j, const Tile &toSplit, const Tile &primary,
     };
 }
 
-void Message::InitClientSocket(const zmq::socket_t &toClient) {
-    Message::client = &toClient;
+void Message::InitClientSocket(zmq::socket_t* toClient) {
+    client = toClient;
 }
 
 

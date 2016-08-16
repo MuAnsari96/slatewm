@@ -5,17 +5,15 @@
 
 #include <boost/optional/optional_io.hpp>
 #include <utility>
-#include <bits/unordered_map.h>
-#include "../../lib/json.h"
+#include <unordered_map>
 
-using json = nlohmann::json;
 typedef std::pair<unsigned int, unsigned int> tuple;
 class Slate;
 
 enum StyleType {
-    TILE,
-    STACK,
-    FLOAT
+    TILE = 0,
+    STACK = 1,
+    FLOAT = 2
 };
 
 class Tile {

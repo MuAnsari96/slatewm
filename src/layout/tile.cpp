@@ -2,6 +2,8 @@
 #include "../util/message.h"
 
 unsigned int Tile::nextIndex = 1;
+std::unordered_map<unsigned int, Tile*> Tile::tileLUT;
+
 
 Tile::Tile() :
         xLimits{0, 0}, yLimits{0, 0}, parent{nullptr}, id{nextIndex++},
@@ -160,5 +162,4 @@ Tile* Tile::restyleTile(unsigned int id, tuple xLimits, tuple yLimits,
     tile->xLimits = xLimits;
     tile->yLimits = yLimits;
     return tile;
-
 }

@@ -6,9 +6,9 @@
 
 #include "slate.h"
 
+
 namespace ClientHandler {
     void Run();
-    void restyle(json window, const Display& display);
 };
 
 
