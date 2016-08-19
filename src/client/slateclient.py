@@ -34,16 +34,19 @@ def event_loop(fromwm):
 
         elif event == util.FromSlate.GET_CHILD_WINDOWS:
             window = msg["Window"]
-            primary, secondary = \
-                client.layout_manager.apply(
-                    util.Window((window["xmin"], window["xmax"]),
-                                (window["ymin"], window["ymax"]),
-                                window["style"],
-                                window["styleType"]))
+            print(window)
+            [primary, secondary] = \
+                client.layout_manager.split(
+                    util.StyledWindow(xcoords=(window["xmin"], window["xmax"]),
+                                      ycoords=(window["ymin"], window["ymax"]),
+                                      style_type=window["styleType"],
+                                      style=window["style"]))
             msg = dict()
             msg["Event"] = util.ToSlate.RESTYLE_CHILDREN
-            msg["Primary"] = primary.flatten(window["primaryID"])
-            msg["Secondary"] = secondary.flatten(window["secondaryID"])
+            if primary is not None:
+                msg["Primary"] = primary.flatten(window["primaryID"])
+            if secondary is not None:
+                msg["Secondary"] = secondary.flatten(window["secondaryID"])
             util.sendmsg(msg)
 
         elif event == util.FromSlate.DEFAULT:
