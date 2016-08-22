@@ -38,8 +38,8 @@ void Workspace::addClient(Display* display, Window w) {
         focusedTile = tileLUT[topFocused];
     }
     tileLUT[w] = focusedTile->assignClient(w);
-    if (focusedTile->first != nullptr) {
-        tileLUT[focusedTile->first->client.get()] = focusedTile->first;
+    if (focusedTile->getPrimary() != nullptr) {
+        tileLUT[focusedTile->getPrimary()->getClient().get()] = const_cast<Tile*>(focusedTile->getPrimary());
     }
 }
 
@@ -47,16 +47,24 @@ void Workspace::removeClient(Window w) {
     clientLUT.erase(w);
     clients.erase(w);
     Tile* target = tileLUT[w];
-    Tile* parent = target->parent;
-    unsigned int width = target->xLimits.second;
-    unsigned int height = target->yLimits.second;
+    const Tile* parent = target->getParent();
+    unsigned int width = target->getXLimits().second;
+    unsigned int height = target->getYLimits().second;
     target->destroy();
     tileLUT.erase(w);
     if (target == root) {
         root = new Tile(width, height);
     }
-    else if (parent != nullptr && parent->client) {
-        tileLUT[parent->client.get()] = parent;
+    else if (parent != nullptr && parent->getClient()) {
+        tileLUT[parent->getClient().get()] = const_cast<Tile*>(parent);
     }
+}
+
+Tile* Workspace::getRoot() const {
+    return root;
+}
+
+void Workspace::setFocusedClient(unsigned int client) {
+    focused_client = client;
 }
 

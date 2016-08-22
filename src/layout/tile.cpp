@@ -47,6 +47,32 @@ void Tile::destroy() {
     delete this;
 }
 
+void Tile::deleteChild(Tile *child) {
+    Tile *prop;
+    if (first == child) {
+        prop = second;
+    }
+    else if (second == child) {
+        prop = first;
+    }
+
+    if (prop->client) {
+        first = nullptr;
+        second = nullptr;
+        client = prop->client;
+    }
+    else {
+        first = prop->first;
+        second = prop->second;
+        first->parent = this;
+        second->parent = this;
+        recalculateBoundaries(parent == nullptr);
+    }
+
+    prop->parent = nullptr;
+    prop->destroy();
+}
+
 Tile* Tile::assignClient(Window client) {
     json msg;
     assert(first == nullptr && second == nullptr);
@@ -103,39 +129,8 @@ void Tile::recalculateBoundaries(bool isRoot) {
     Message::SendToClient(&msg);
 }
 
-void Tile::deleteChild(Tile *child) {
-    Tile *prop;
-    if (first == child) {
-        prop = second;
-    }
-    else if (second == child) {
-        prop = first;
-    }
-
-    if (prop->client) {
-        first = nullptr;
-        second = nullptr;
-        client = prop->client;
-    }
-    else {
-        first = prop->first;
-        second = prop->second;
-        first->parent = this;
-        second->parent = this;
-        recalculateBoundaries(parent == nullptr);
-    }
-
-    prop->parent = nullptr;
-    prop->destroy();
-}
-
-std::ostream& operator<< (std::ostream& out, const Tile& tile) {
-    out << "Tile(x: " << tile.xLimits.first << ", " << tile.xLimits.second << " | y: " << tile.yLimits.first
-        << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
-}
-
 Tile* Tile::restyleTile(unsigned int id, tuple xLimits, tuple yLimits,
-                       StyleType styleType, std::string style, bool root) {
+                        StyleType styleType, std::string style, bool root) {
     Tile* tile = tileLUT[id];
     tile->style = style;
     tile->styleType = styleType;
@@ -153,4 +148,45 @@ Tile* Tile::restyleTile(unsigned int id, tuple xLimits, tuple yLimits,
     tile->xLimits = xLimits;
     tile->yLimits = yLimits;
     return tile;
+}
+
+const Tile* Tile::getPrimary() const {
+    return first;
+}
+
+const Tile* Tile::getSecondary() const {
+    return second;
+}
+
+const Tile* Tile::getParent() const {
+    return parent;
+}
+
+const boost::optional<Window> Tile::getClient() const {
+    return client;
+}
+
+const tuple& Tile::getXLimits() const {
+    return xLimits;
+}
+
+const tuple& Tile::getYLimits() const {
+    return yLimits;
+}
+
+const std::string& Tile::getStyle() const {
+    return style;
+}
+
+const StyleType& Tile::getStyleType() const {
+    return styleType;
+}
+
+unsigned int Tile::getID() const {
+    return id;
+}
+
+std::ostream& operator<< (std::ostream& out, const Tile& tile) {
+    out << "Tile(x: " << tile.xLimits.first << ", " << tile.xLimits.second << " | y: " << tile.yLimits.first
+        << ", " << tile.yLimits.second << " | client: " << tile.client << ")" << std::endl;
 }

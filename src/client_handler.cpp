@@ -13,7 +13,7 @@ void ClientHandler::Run() {
     std::shared_ptr<Slate> wm = Slate::getInstance();
     zmq::message_t reply;
     while (true) {
-        wm->fromclient.recv(&reply);
+        wm->getClientPipe().recv(&reply);
         std::string msg(static_cast<char*>(reply.data()), reply.size()+1);
         msg[reply.size()] = '\0';
         json jmsg = json::parse(msg);
@@ -21,13 +21,13 @@ void ClientHandler::Run() {
 
         switch(event) {
             case Message::FromClient::Kill_FOCUSED_CLIENT:
-                XKillClient(wm->display, wm->state.focused_client);
+                XKillClient(wm->getDisplay(), wm->getState().focused_client);
                 break;
             case Message::FromClient::HIDE_FOCUSED_CLIENT:
-                XUnmapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
+                XUnmapWindow(wm->getDisplay(), Client::clientID(wm->getDisplay(), wm->getState().focused_client));
                 break;
             case Message::FromClient::UNHIDE_FOCUSED_CLIENT:
-                XMapWindow(wm->display, Client::clientID(wm->display, wm->state.focused_client));
+                XMapWindow(wm->getDisplay(), Client::clientID(wm->getDisplay(), wm->getState().focused_client));
                 break;
             case Message::FromClient::SWITCH_WORKSPACE:
                 wm->switchToWorkspace(jmsg["Workspace"]);
@@ -41,7 +41,7 @@ void ClientHandler::Run() {
                                                static_cast<StyleType>(styleType),
                                                window["style"],
                                                true);
-                tile->drawTile(wm->display);
+                tile->drawTile(wm->getDisplay());
                 break;
             }
             case Message::FromClient::RESTYLE_CHILDREN: {
@@ -53,7 +53,7 @@ void ClientHandler::Run() {
                                                static_cast<StyleType>(styleType),
                                                primary["style"],
                                                false);
-                tile->drawTile(wm->display);
+                tile->drawTile(wm->getDisplay());
 
 
                 auto secondary = jmsg["Secondary"];
@@ -64,7 +64,7 @@ void ClientHandler::Run() {
                                          static_cast<StyleType>(styleType),
                                          secondary["style"],
                                          false);
-                tile->drawTile(wm->display);
+                tile->drawTile(wm->getDisplay());
                 break;
             }
             default:

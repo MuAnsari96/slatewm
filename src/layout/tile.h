@@ -27,23 +27,24 @@ public:
 
     ~Tile();
 
+    void destroy();
+    void deleteChild(Tile* child);
     Tile* assignClient(Window client);
 
     void drawTile(Display* display);
     void recalculateBoundaries(bool isRoot);
-    void deleteChild(Tile* child);
-    void destroy();
 
     friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
 
-    const StyleType& getStyleType();
-    const Tile& getPrimary();
-    const Tile& getSecondary();
-    const Tile& getParent();
-    const tuple& getXLimits();
-    const tuple& getYLimits();
-    const std::string& getStyle();
-    unsigned int getID();
+    const Tile* getPrimary() const;
+    const Tile* getSecondary() const;
+    const Tile* getParent() const;
+    const boost::optional<Window> getClient() const;
+    const tuple& getXLimits() const;
+    const tuple& getYLimits() const;
+    const std::string& getStyle() const;
+    const StyleType& getStyleType() const;
+    unsigned int getID() const;
 
 
     static unsigned int nextIndex;
@@ -51,8 +52,7 @@ public:
 
     static Tile* restyleTile(unsigned int id, tuple xLimits, tuple yLimits, StyleType styleType, std::string style, bool root);
 
-//private:
-    StyleType styleType;
+private:
     Tile* first;
     Tile* second;
     Tile* parent;
@@ -63,6 +63,7 @@ public:
     tuple yLimits;
 
     std::string style;
+    StyleType styleType;
     unsigned int id;
 };
 

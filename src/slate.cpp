@@ -61,7 +61,7 @@ void Slate::XEventLoop() {
                 if (xkeysym < 128)
                     state.keymask.insert(xkeysym);
                 state.focused_client = e.xkey.window;
-                state.workspaces[state.workspaceID]->focused_client = e.xkey.window;
+                state.workspaces[state.workspaceID]->setFocusedClient(e.xkey.window);
 
                 Message::PopulateMessage(&jmsg, state, e);
                 jmsg["Delta"] = xkeysym;
@@ -91,7 +91,7 @@ void Slate::XEventLoop() {
                 Workspace* w = state.workspaces[state.workspaceID];
                 if (w) {
                     w->addClient(display, e.xcreatewindow.window);
-                    w->root->drawTile(display);
+                    w->getRoot()->drawTile(display);
                 }
                 Message::PopulateMessage(&jmsg, state, e);
                 break;
@@ -100,7 +100,7 @@ void Slate::XEventLoop() {
                 Workspace *w = state.workspaces[Workspace::clientLUT[e.xdestroywindow.window]];
                 if (w) {
                     w->removeClient(e.xdestroywindow.window);
-                    w->root->drawTile(display);
+                    w->getRoot()->drawTile(display);
                 }
                 break;
             }
@@ -113,6 +113,18 @@ void Slate::XEventLoop() {
 
 void Slate::XEventLoopWrapper() {
     getInstance()->XEventLoop();
+}
+
+zmq::socket_t& Slate::getClientPipe() {
+    return fromclient;
+}
+
+const slate_state_t& Slate::getState() const {
+    return state;
+}
+
+Display* Slate::getDisplay() const {
+    return display;
 }
 
 void Slate::switchToWorkspace(std::string targetName) {

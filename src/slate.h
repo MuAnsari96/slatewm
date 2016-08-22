@@ -34,8 +34,14 @@ struct slate_state_t{
 
 class Slate {
 private:
+    slate_state_t state;
+
     zmq::context_t ctx;
     zmq::socket_t toclient;
+    zmq::socket_t fromclient;
+
+    Display* display;
+    Window root;
 
     static std::shared_ptr<Slate> instance;
 
@@ -46,17 +52,12 @@ private:
     void showWorkspace(std::string targetName);
 
 public:
-    zmq::socket_t fromclient;
-    slate_state_t state;
-    Display* display;
-    Window root;
-
     ~Slate();
 
-    const zmq::socket_t& getClientPipe();
-    const slate_state_t& getState();
-    Display* getDisplay();
-    Window getRoot();
+    const slate_state_t& getState() const;
+    zmq::socket_t& getClientPipe();
+    Display* getDisplay() const;
+
     static std::shared_ptr<Slate> getInstance();
 
     static void XEventLoopWrapper();

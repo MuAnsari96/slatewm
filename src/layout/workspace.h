@@ -11,9 +11,6 @@
 
 class Workspace {
 public:
-    unsigned int focused_client;
-    Tile* root;
-
     Workspace(unsigned int width, unsigned int height);
     Workspace(unsigned int width, unsigned int height, std::string name);
     ~Workspace();
@@ -21,8 +18,8 @@ public:
     void addClient(Display* display, Window w);
     void removeClient(Window w);
 
-    unsigned int getFocusedClient();
-    Tile& getRoot();
+    Tile* getRoot() const;
+    void setFocusedClient(unsigned int client);
 
     static int default_count;
     static std::unordered_map<Window, std::string> clientLUT;
@@ -32,6 +29,9 @@ public:
 private:
     std::string name;
     std::unordered_map<Window, Tile*> tileLUT;
+
+    Tile* root;
+    unsigned int focused_client;
 };
 
 
