@@ -12,6 +12,13 @@
 
 #include "layout/workspace.h"
 
+#define ALT 64
+#define CTL 37
+#define META 133
+#define SHIFT 50
+#define SPACE 65
+#define ENTER 36
+
 struct slate_state_t{
     bool meta = false;
     bool shift = false;

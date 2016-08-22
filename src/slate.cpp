@@ -5,13 +5,6 @@
 #include "util/message.h"
 #include "util/util.h"
 
-#define ALT 64
-#define CTL 37
-#define META 133
-#define SHIFT 50
-#define SPACE 65
-#define ENTER 36
-
 std::shared_ptr<Slate> Slate::instance = std::shared_ptr<Slate>();
 
 Slate::Slate() :
@@ -50,7 +43,7 @@ void Slate::XEventLoop() {
     XSelectInput(display, root, KeyReleaseMask | KeyPressMask | SubstructureNotifyMask);
     while (true) {
         XEvent e;
-        InterruptibleXNextEvent(display, &e);
+        Util::InterruptibleXNextEvent(display, &e);
 
         json jmsg;
         Message::PopulateMessage(&jmsg, state, e);

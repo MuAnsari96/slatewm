@@ -6,7 +6,6 @@
 #include "json.h"
 #include "zmq.h"
 
-
 #include "../slate.h"
 
 using json = nlohmann::json;
@@ -37,4 +36,5 @@ namespace Message {
 
     void SendToClient(json *j);
 }
+
 #endif //SLATEWM_MESSAGE_H

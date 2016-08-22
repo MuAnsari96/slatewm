@@ -3,6 +3,8 @@
 
 #include <X11/Xlib.h>
 
-int InterruptibleXNextEvent(Display*d, XEvent *event);
+namespace Util {
+    int InterruptibleXNextEvent(Display *d, XEvent *event);
+}
 
 #endif

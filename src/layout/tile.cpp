@@ -1,4 +1,5 @@
 #include "tile.h"
+
 #include "../util/message.h"
 
 unsigned int Tile::nextIndex = 1;
@@ -121,7 +122,6 @@ void Tile::deleteChild(Tile *child) {
         second = prop->second;
         first->parent = this;
         second->parent = this;
-        std::cout << *this << std::endl;
         recalculateBoundaries(parent == nullptr);
     }
 

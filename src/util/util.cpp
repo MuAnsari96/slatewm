@@ -15,7 +15,7 @@
 /* Unlike XNextEvent, if a signal arrives, InterruptibleXNextEvent will
  * return zero. */
 
-int InterruptibleXNextEvent(Display* d, XEvent *event) {
+int Util::InterruptibleXNextEvent(Display* d, XEvent *event) {
 	fd_set fds;
 	int rc;
 	int d_fd = ConnectionNumber(d);
