@@ -17,8 +17,12 @@ public:
     Workspace(unsigned int width, unsigned int height);
     Workspace(unsigned int width, unsigned int height, std::string name);
     ~Workspace();
+
     void addClient(Display* display, Window w);
     void removeClient(Window w);
+
+    unsigned int getFocusedClient();
+    Tile& getRoot();
 
     static int default_count;
     static std::unordered_map<Window, std::string> clientLUT;

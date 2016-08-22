@@ -33,12 +33,25 @@ public:
     void recalculateBoundaries(bool isRoot);
     void deleteChild(Tile* child);
     void destroy();
-    void printHier(int level);
 
     friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
 
+    const StyleType& getStyleType();
+    const Tile& getPrimary();
+    const Tile& getSecondary();
+    const Tile& getParent();
+    const tuple& getXLimits();
+    const tuple& getYLimits();
+    const std::string& getStyle();
+    unsigned int getID();
 
 
+    static unsigned int nextIndex;
+    static std::unordered_map<unsigned int, Tile*> tileLUT;
+
+    static Tile* restyleTile(unsigned int id, tuple xLimits, tuple yLimits, StyleType styleType, std::string style, bool root);
+
+//private:
     StyleType styleType;
     Tile* first;
     Tile* second;
@@ -51,11 +64,6 @@ public:
 
     std::string style;
     unsigned int id;
-
-    static unsigned int nextIndex;
-    static std::unordered_map<unsigned int, Tile*> tileLUT;
-
-    static Tile* restyleTile(unsigned int id, tuple xLimits, tuple yLimits, StyleType styleType, std::string style, bool root);
 };
 
 

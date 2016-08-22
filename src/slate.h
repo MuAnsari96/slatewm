@@ -36,6 +36,7 @@ class Slate {
 private:
     zmq::context_t ctx;
     zmq::socket_t toclient;
+
     static std::shared_ptr<Slate> instance;
 
     Slate();
@@ -51,8 +52,15 @@ public:
     Window root;
 
     ~Slate();
+
+    const zmq::socket_t& getClientPipe();
+    const slate_state_t& getState();
+    Display* getDisplay();
+    Window getRoot();
     static std::shared_ptr<Slate> getInstance();
+
     static void XEventLoopWrapper();
+
     void switchToWorkspace(std::string targetName);
 
 };
