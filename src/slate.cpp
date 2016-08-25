@@ -40,6 +40,8 @@ std::shared_ptr<Slate> Slate::getInstance() {
 }
 
 void Slate::XEventLoop() {
+    /* An event loop that handles all relevant XEvents and requests updates from the client, if necessary
+     */
     XSelectInput(display, root, KeyReleaseMask | KeyPressMask | SubstructureNotifyMask);
     while (true) {
         XEvent e;

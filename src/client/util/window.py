@@ -1,3 +1,5 @@
+''' These functions all emit messages to slate to handle the general management of
+    windows contained in the wm. '''
 from util.message import get_conn
 from util.message import ToSlate
 

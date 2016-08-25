@@ -5,6 +5,7 @@
 #include "client_handler.h"
 
 int main() {
+    /* Entry point for slate */
     std::shared_ptr<Slate> wm = Slate::getInstance();
     if (!wm) {
         std::cout << "Failed to initialize slate" << std::endl;

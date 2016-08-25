@@ -1,3 +1,5 @@
+''' An event loop that passes all events from the window manager to the user-defined event handler
+    exposed in rc.py '''
 from events import *
 import util
 from rc import client

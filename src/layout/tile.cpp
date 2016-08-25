@@ -48,6 +48,9 @@ void Tile::destroy() {
 }
 
 void Tile::deleteChild(Tile *child) {
+    /* When a client is deleted, the "tree" that represents the tiled clients must be reordered, and boundaries
+     * recalculated. This functions handles this case.
+     */
     Tile *prop;
     if (first == child) {
         prop = second;
@@ -74,6 +77,9 @@ void Tile::deleteChild(Tile *child) {
 }
 
 Tile* Tile::assignClient(Window client) {
+    /* This function is called whenever a client is opened by the user-- it is then either mapped to an uninited tile,
+     * or the client that it was spawned in is split to show the new client.
+     */
     json msg;
     assert(first == nullptr && second == nullptr);
     if (!this->client) {
@@ -96,6 +102,7 @@ Tile* Tile::assignClient(Window client) {
 }
 
 void Tile::drawTile(Display* display) {
+    /* Draws a tile and all of its subchildren to the screen */
     if (client) {
         // Even though the XLib docs SAY NOTHING AT ALL ABOUT THIS, windows need nonzero dimensions
         if (xLimits.second - xLimits.first == 0 || yLimits.second - yLimits.first == 0){
@@ -131,6 +138,9 @@ void Tile::recalculateBoundaries(bool isRoot) {
 
 Tile* Tile::restyleTile(unsigned int id, tuple xLimits, tuple yLimits,
                         StyleType styleType, std::string style, bool root) {
+    /* Updates the style of a window (as defined in slate's client modules). This is called whenever
+     * the client emits an even that warrants a change in the displayed windows
+     */
     Tile* tile = tileLUT[id];
     tile->style = style;
     tile->styleType = styleType;

@@ -1,6 +1,9 @@
 from util.layout import LayoutManager
 
 class Handler:
+    '''
+    Represents an object that maps user events to wm actions
+    '''
 
     def __init__(self):
         self.keybindings = {}

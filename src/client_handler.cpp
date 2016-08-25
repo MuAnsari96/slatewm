@@ -10,6 +10,8 @@
 using json = nlohmann::json;
 
 void ClientHandler::Run() {
+    /* An event loop that listens for and handles events emitted by the client(s) on its own thread.
+     */
     std::shared_ptr<Slate> wm = Slate::getInstance();
     zmq::message_t reply;
     while (true) {

@@ -5,6 +5,9 @@ namespace Message {
 }
 
 void Message::PopulateMessage(json *j, const slate_state_t &state, const XEvent &e) {
+    /* Creates a standard update message to the client. From here, additional components can be appended to
+     * the message to send it all the information necessary to an event. This will ultimately be abstracted away
+     */
     (*j)["Event"] = ToClient::DEFAULT;
     (*j)["Client"] = state.focused_client;
     (*j)["Workspace"] = 0;
@@ -22,6 +25,8 @@ void Message::PopulateMessage(json *j, const slate_state_t &state, const XEvent 
 }
 
 void Message::AppendToMessage(json *j, const Tile& tile) {
+    /* Appends the information of a single tile to a message
+     */
     (*j)["Window"] = {
             {"style", tile.getStyle()},
             {"styleType", tile.getStyleType()},
@@ -34,6 +39,8 @@ void Message::AppendToMessage(json *j, const Tile& tile) {
 }
 
 void Message::AppendToMessage(json *j, const Tile &toSplit, const Tile &primary, const Tile &secondary) {
+    /* Appends a tile and its children to a message.
+     */
     (*j)["Window"] = {
             {"style", toSplit.getStyle()},
             {"styleType", toSplit.getStyleType()},

@@ -1,3 +1,6 @@
+''' In this file, users are able to customize a handler.Handler object, that effectively defines all of
+    Slate's behavior. '''
+
 from handler import Handler
 from events import *
 import util
