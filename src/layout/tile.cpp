@@ -12,7 +12,7 @@ Tile::Tile() :
     tileLUT[id] = this;
 }
 
-Tile::Tile(Tile* parent, boost::optional<Window> client) :
+Tile::Tile(Tile* parent, Window client) :
         xLimits{0, 0}, yLimits{0, 0}, parent{parent}, id{nextIndex++},
         client{client}, first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
     tileLUT[id] = this;
@@ -24,13 +24,13 @@ Tile::Tile(int xMax, int yMax) :
     tileLUT[id] = this;
 }
 
-Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client) :
+Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, Window client) :
     xLimits{xLimits}, yLimits{yLimits}, parent{parent}, id{nextIndex++},
     client{client}, first{nullptr}, second{nullptr}, styleType{TILE}, style{""} {
     tileLUT[id] = this;
 }
 
-Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client, StyleType styleType) :
+Tile::Tile(tuple xLimits, tuple yLimits, Tile* parent, Window client, StyleType styleType) :
         xLimits{xLimits}, yLimits{yLimits}, parent{parent}, id{nextIndex++},
         client{client}, first{nullptr}, second{nullptr}, styleType{styleType}, style{""} {
     tileLUT[id] = this;
@@ -93,7 +93,7 @@ Tile* Tile::assignClient(Window client) {
 
     first = new Tile(this, this->client);
     second = new Tile(this, client);
-    this->client.reset();
+    this->client = nullptr;
     msg["Event"] = Message::ToClient::GET_CHILD_WINDOWS;
     Message::AppendToMessage(&msg, *this, *first, *second);
     Message::SendToClient(&msg);
@@ -101,20 +101,19 @@ Tile* Tile::assignClient(Window client) {
     return second;
 }
 
-void Tile::drawTile(Display* display) {
+void Tile::drawTile() {
     /* Draws a tile and all of its subchildren to the screen */
     if (client) {
         // Even though the XLib docs SAY NOTHING AT ALL ABOUT THIS, windows need nonzero dimensions
         if (xLimits.second - xLimits.first == 0 || yLimits.second - yLimits.first == 0){
             return;
         };
-
-        XMoveResizeWindow(display, client.get(), xLimits.first, yLimits.first,
-                          xLimits.second - xLimits.first, yLimits.second - yLimits.first);
+        SetWindowPos(client, 0, xLimits.first, yLimits.first,
+                     xLimits.second - xLimits.first, yLimits.second - yLimits.first, SWP_NOZORDER|SWP_NOACTIVATE);
     }
     if (first != nullptr && second != nullptr) {
-        first->drawTile(display);
-        second->drawTile(display);
+        first->drawTile();
+        second->drawTile();
     }
 }
 
@@ -172,7 +171,7 @@ const Tile* Tile::getParent() const {
     return parent;
 }
 
-const boost::optional<Window> Tile::getClient() const {
+const Window Tile::getClient() const {
     return client;
 }
 

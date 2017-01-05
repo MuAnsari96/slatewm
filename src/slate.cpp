@@ -9,18 +9,9 @@ std::shared_ptr<Slate> Slate::instance = std::shared_ptr<Slate>();
 
 Slate::Slate() :
     ctx(1), toclient(ctx, ZMQ_PUSH), fromclient(ctx, ZMQ_PULL) {
-    Display* display_ = XOpenDisplay(nullptr);
 
-    if (!display_) {
-        std::cout << "Unable to open X display" << std::endl;
-        return;
-    }
-    display = display_;
-    root = DefaultRootWindow(display_);
-
-    XWindowAttributes attr;
-    XGetWindowAttributes(display, root, &attr);
-    state.workspaces["0"] = new Workspace(attr.width, attr.height, "0");
+    // Magic 1.25 till we get a DPI fix
+    state.workspaces["0"] = new Workspace(unsigned(int(GetSystemMetrics(SM_CXSCREEN)*1.25)), unsigned(int(GetSystemMetrics(SM_CYSCREEN)*1.25)), "0");
     state.focused_client = root;
 
     toclient.bind("ipc:///tmp/slateevents");
@@ -30,7 +21,6 @@ Slate::Slate() :
 }
 
 Slate::~Slate() {
-    XCloseDisplay(display);
 }
 
 std::shared_ptr<Slate> Slate::getInstance() {
@@ -39,7 +29,7 @@ std::shared_ptr<Slate> Slate::getInstance() {
     return instance;
 }
 
-void Slate::XEventLoop() {
+void Slate::EventLoop() {
     /* An event loop that handles all relevant XEvents and requests updates from the client, if necessary
      */
     XSelectInput(display, root, KeyReleaseMask | KeyPressMask | SubstructureNotifyMask);
@@ -93,7 +83,7 @@ void Slate::XEventLoop() {
                 Workspace* w = state.workspaces[state.workspaceID];
                 if (w) {
                     w->addClient(display, e.xcreatewindow.window);
-                    w->getRoot()->drawTile(display);
+                    w->getRoot()->drawTile();
                 }
                 Message::PopulateMessage(&jmsg, state, e);
                 break;
@@ -102,7 +92,7 @@ void Slate::XEventLoop() {
                 Workspace *w = state.workspaces[Workspace::clientLUT[e.xdestroywindow.window]];
                 if (w) {
                     w->removeClient(e.xdestroywindow.window);
-                    w->getRoot()->drawTile(display);
+                    w->getRoot()->drawTile();
                 }
                 break;
             }
@@ -113,8 +103,8 @@ void Slate::XEventLoop() {
     }
 }
 
-void Slate::XEventLoopWrapper() {
-    getInstance()->XEventLoop();
+void Slate::EventLoopWrapper() {
+    getInstance()->EventLoop();
 }
 
 zmq::socket_t& Slate::getClientPipe() {
@@ -123,10 +113,6 @@ zmq::socket_t& Slate::getClientPipe() {
 
 const slate_state_t& Slate::getState() const {
     return state;
-}
-
-Display* Slate::getDisplay() const {
-    return display;
 }
 
 void Slate::switchToWorkspace(std::string targetName) {
@@ -139,22 +125,22 @@ void Slate::switchToWorkspace(std::string targetName) {
 
 void Slate::hideWorkspace() {
     Workspace *curr = state.workspaces[state.workspaceID];
-    std::unordered_set<unsigned int> clients = curr->clients;
+    std::unordered_set<HWND> clients = curr->clients;
     for (Window client: clients) {
-        XUnmapWindow(display, client);
+        ShowWindow(client, SW_HIDE);
     }
 }
 
 void Slate::showWorkspace(std::string targetName) {
     if (state.workspaces.count(targetName) == 0) {
-        XWindowAttributes attr;
-        XGetWindowAttributes(display, root, &attr);
-        state.workspaces[targetName] = new Workspace(attr.width, attr.height, targetName);
+
+        // Magic 1.25 till we get a DPI fix
+        state.workspaces[targetName] = new Workspace(unsigned(int(GetSystemMetrics(SM_CXSCREEN)*1.25)), unsigned(int(GetSystemMetrics(SM_CYSCREEN)*1.25)), "0");
     }
     Workspace *target = state.workspaces[targetName];
-    std::unordered_set<unsigned int> clients = target->clients;
+    std::unordered_set<HWND> clients = target->clients;
     for (Window client: clients) {
-        XMapWindow(display, client);
+        ShowWindow(client, SW_SHOW);
     }
     state.workspaceID = targetName;
 }

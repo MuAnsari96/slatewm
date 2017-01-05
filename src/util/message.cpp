@@ -4,7 +4,7 @@ namespace Message {
     zmq::socket_t* client;
 }
 
-void Message::PopulateMessage(json *j, const slate_state_t &state, const XEvent &e) {
+void Message::PopulateMessage(json *j, const slate_state_t &state) {
     /* Creates a standard update message to the client. From here, additional components can be appended to
      * the message to send it all the information necessary to an event. This will ultimately be abstracted away
      */

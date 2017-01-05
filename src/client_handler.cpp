@@ -1,6 +1,7 @@
 #include "client_handler.h"
 
 #include <iostream>
+#include <windows.h>
 
 #include "../lib/json.h"
 
@@ -23,13 +24,13 @@ void ClientHandler::Run() {
 
         switch(event) {
             case Message::FromClient::Kill_FOCUSED_CLIENT:
-                XKillClient(wm->getDisplay(), wm->getState().focused_client);
+                SendMessage(wm->getState().focused_client, WM_CLOSE, 0, 0);
                 break;
             case Message::FromClient::HIDE_FOCUSED_CLIENT:
-                XUnmapWindow(wm->getDisplay(), Client::clientID(wm->getDisplay(), wm->getState().focused_client));
+                ShowWindow(wm->getState().focused_client, SW_HIDE);
                 break;
             case Message::FromClient::UNHIDE_FOCUSED_CLIENT:
-                XMapWindow(wm->getDisplay(), Client::clientID(wm->getDisplay(), wm->getState().focused_client));
+                ShowWindow(wm->getState().focused_client, SW_SHOW);
                 break;
             case Message::FromClient::SWITCH_WORKSPACE:
                 wm->switchToWorkspace(jmsg["Workspace"]);
@@ -43,7 +44,7 @@ void ClientHandler::Run() {
                                                static_cast<StyleType>(styleType),
                                                window["style"],
                                                true);
-                tile->drawTile(wm->getDisplay());
+                tile->drawTile();
                 break;
             }
             case Message::FromClient::RESTYLE_CHILDREN: {
@@ -55,7 +56,7 @@ void ClientHandler::Run() {
                                                static_cast<StyleType>(styleType),
                                                primary["style"],
                                                false);
-                tile->drawTile(wm->getDisplay());
+                tile->drawTile();
 
 
                 auto secondary = jmsg["Secondary"];
@@ -66,7 +67,7 @@ void ClientHandler::Run() {
                                          static_cast<StyleType>(styleType),
                                          secondary["style"],
                                          false);
-                tile->drawTile(wm->getDisplay());
+                tile->drawTile();
                 break;
             }
             default:

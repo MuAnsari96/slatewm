@@ -1,8 +1,7 @@
 #ifndef SLATEWM_SLATE_H
 #define SLATEWM_SLATE_H
 
-#include <X11/Xlib.h>
-#include <X11/XKBlib.h>
+#include <windows.h>
 
 #include <memory>
 #include <unordered_set>
@@ -19,6 +18,8 @@
 #define SPACE 65
 #define ENTER 36
 
+typedef HWND Window;
+
 struct slate_state_t{
     bool meta = false;
     bool shift = false;
@@ -29,7 +30,7 @@ struct slate_state_t{
     std::unordered_set<unsigned long> keymask;
     std::unordered_map<std::string, Workspace*> workspaces;
     std::string workspaceID = "0";
-    unsigned long focused_client=-1;
+    HWND focused_client= nullptr;
 };
 
 class Slate {
@@ -40,13 +41,12 @@ private:
     zmq::socket_t toclient;
     zmq::socket_t fromclient;
 
-    Display* display;
     Window root;
 
     static std::shared_ptr<Slate> instance;
 
     Slate();
-    void XEventLoop();
+    void EventLoop();
 
     void hideWorkspace();
     void showWorkspace(std::string targetName);
@@ -56,11 +56,10 @@ public:
 
     const slate_state_t& getState() const;
     zmq::socket_t& getClientPipe();
-    Display* getDisplay() const;
 
     static std::shared_ptr<Slate> getInstance();
 
-    static void XEventLoopWrapper();
+    static void EventLoopWrapper();
 
     void switchToWorkspace(std::string targetName);
 

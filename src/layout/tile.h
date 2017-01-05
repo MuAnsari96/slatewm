@@ -1,12 +1,13 @@
 #ifndef SLATEWM_TILE_H
 #define SLATEWM_TILE_H
 
-#include <X11/Xlib.h>
+#include <windows.h>
 
-#include <boost/optional/optional_io.hpp>
 #include <utility>
 #include <unordered_map>
 
+
+typedef HWND Window
 typedef std::pair<unsigned int, unsigned int> tuple;
 class Slate;
 
@@ -19,11 +20,11 @@ enum StyleType {
 class Tile {
 public:
     Tile();
-    Tile(Tile* parent, boost::optional<Window> client);
+    Tile(Tile* parent, Window client);
     Tile(int xMax, int yMax);
-    Tile(tuple xLimits, tuple yLimits, Tile* parent, boost::optional<Window> client);
+    Tile(tuple xLimits, tuple yLimits, Tile* parent, Window client);
     Tile(tuple xLimits, tuple yLimits, Tile* parent,
-         boost::optional<Window> client, StyleType styleType);
+         Window client, StyleType styleType);
 
     ~Tile();
 
@@ -31,7 +32,7 @@ public:
     void deleteChild(Tile* child);
     Tile* assignClient(Window client);
 
-    void drawTile(Display* display);
+    void drawTile();
     void recalculateBoundaries(bool isRoot);
 
     friend std::ostream& operator<< (std::ostream& out, const Tile& tile);
@@ -39,7 +40,7 @@ public:
     const Tile* getPrimary() const;
     const Tile* getSecondary() const;
     const Tile* getParent() const;
-    const boost::optional<Window> getClient() const;
+    const Window getClient() const;
     const tuple& getXLimits() const;
     const tuple& getYLimits() const;
     const std::string& getStyle() const;
@@ -57,7 +58,7 @@ private:
     Tile* second;
     Tile* parent;
 
-    boost::optional<Window> client;
+    Window client;
 
     tuple xLimits;
     tuple yLimits;

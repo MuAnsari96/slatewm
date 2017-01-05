@@ -1,15 +1,17 @@
 #ifndef SLATEWM_CLIENT_H
 #define SLATEWM_CLIENT_H
 
-#include <X11/Xlib.h>
+#include <windows.h>
+
+typedef HWND Window;
 
 class Client {
 public:
-    Client(int Xid);
+    Client(Window Wid);
 
-    int Xid;
+    Window Wid;
 
-    static Window clientID(Display *d, Window Xid);
+    static Window clientID(Window Wid);
 };
 
 #endif //SLATEWM_CLIENT_H

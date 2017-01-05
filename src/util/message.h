@@ -1,9 +1,7 @@
 #ifndef SLATEWM_MESSAGE_H
 #define SLATEWM_MESSAGE_H
 
-#include <X11/Xlib.h>
-
-#include "json.h"
+#include "../../lib/json.h"
 #include "zmq.h"
 
 #include "../slate.h"
@@ -29,7 +27,7 @@ namespace Message {
         RESTYLE_CHILDREN = 5
     };
 
-    void PopulateMessage(json *j, const slate_state_t &state, const XEvent &e);
+    void PopulateMessage(json *j, const slate_state_t &state);
     void AppendToMessage(json *j, const Tile& tile);
     void AppendToMessage(json *j, const Tile& toSplit, const Tile& primary, const Tile& secondary);
     void InitClientSocket(zmq::socket_t* toClient);

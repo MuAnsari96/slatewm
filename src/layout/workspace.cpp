@@ -25,21 +25,24 @@ Workspace::~Workspace() {
     root->destroy();
 }
 
-void Workspace::addClient(Display* display, Window w) {
-    Window top = Client::clientID(display, w);
+void Workspace::addClient(Window w) {
+    Window top = Client::clientID(w);
     if (clients.count(top) > 0) {
         return;
     }
     clients.emplace(top);
     clientLUT[w] = name;
-    Window topFocused = Client::clientID(display, focused_client);
+    Window topFocused = Client::clientID(focused_client);
     Tile* focusedTile = root;
     if (tileLUT.count(topFocused) > 0) {
         focusedTile = tileLUT[topFocused];
     }
     tileLUT[w] = focusedTile->assignClient(w);
     if (focusedTile->getPrimary() != nullptr) {
-        tileLUT[focusedTile->getPrimary()->getClient().get()] = const_cast<Tile*>(focusedTile->getPrimary());
+        Window cli = focusedTile->getPrimary()->getClient();
+        if (cli){
+            tileLUT[cli] = const_cast<Tile*>(focusedTile->getPrimary());
+        }
     }
 }
 
@@ -56,7 +59,7 @@ void Workspace::removeClient(Window w) {
         root = new Tile(width, height);
     }
     else if (parent != nullptr && parent->getClient()) {
-        tileLUT[parent->getClient().get()] = const_cast<Tile*>(parent);
+        tileLUT[parent->getClient()] = const_cast<Tile*>(parent);
     }
 }
 
@@ -64,7 +67,7 @@ Tile* Workspace::getRoot() const {
     return root;
 }
 
-void Workspace::setFocusedClient(unsigned int client) {
+void Workspace::setFocusedClient(HWND client) {
     focused_client = client;
 }
 
