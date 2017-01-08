@@ -28,6 +28,7 @@ struct slate_state_t{
     bool space = false;
     bool enter = false;
     std::unordered_set<unsigned long> keymask;
+    std::unordered_set<HWND> openWindows;
     std::unordered_map<std::string, Workspace*> workspaces;
     std::string workspaceID = "0";
     HWND focused_client= nullptr;
@@ -46,7 +47,20 @@ private:
     static std::shared_ptr<Slate> instance;
 
     Slate();
-    void EventLoop();
+    void EventEntry();
+
+    void KeypressWatcher();
+    void WinEventWatcher();
+
+    HHOOK keyhook;
+    HWINEVENTHOOK winhook;
+
+    LRESULT CALLBACK KeypressCallback(int nCode, WPARAM wParam, LPARAM lParam);
+    void CALLBACK WinEventCallback(HWINEVENTHOOK hook, DWORD event, HWND hwnd,
+                                   LONG idObject, LONG idChild,
+                                   DWORD dwEventThread, DWORD dwmsEventTime);
+
+    std::unordered_set<HWND> topWindows();
 
     void hideWorkspace();
     void showWorkspace(std::string targetName);
@@ -59,7 +73,7 @@ public:
 
     static std::shared_ptr<Slate> getInstance();
 
-    static void EventLoopWrapper();
+    static void EventEntryWrapper();
 
     void switchToWorkspace(std::string targetName);
 

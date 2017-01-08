@@ -13,7 +13,7 @@ int main() {
         return -1;
     }
 
-    std::thread T_Event(Slate::EventLoopWrapper);
+    std::thread T_Event(Slate::EventEntryWrapper);
     std::thread T_Client(ClientHandler::Run);
     T_Event.join();
     T_Client.join();
